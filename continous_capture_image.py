@@ -3,7 +3,7 @@
 
 # Based on https://www.pyimagesearch.com/2016/02/08/opencv-shape-detection/
 
-# In[26]:
+# In[1]:
 
 
 # Global variables
@@ -19,7 +19,7 @@ class Flags:
 flags=Flags()   
 
 
-# In[18]:
+# In[2]:
 
 
 import cv2
@@ -32,7 +32,7 @@ else:
     import matplotlib.pyplot as plt
 
 
-# In[105]:
+# In[22]:
 
 
 class ShapeDetector:
@@ -71,12 +71,12 @@ class ShapeDetector:
         # return the name of the shape
         return shape
 
-    def processImg(self, image):
+    def processImg(self, image, thresh_value=60):
         # convert the resized image to grayscale, blur it slightly, and threshold it
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
-        self.contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        thresh = cv2.threshold(blurred, thresh_value, 255, cv2.THRESH_BINARY)[1]
+        _, self.contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         self.image = image.copy()
         return thresh
     
@@ -113,12 +113,11 @@ class ShapeDetector:
 sd = ShapeDetector()
 
 
-# In[134]:
+# In[41]:
 
 
 i=0
 while (1):
-    
     # Read Image
     if flags.onRaspberry:
         with PiCamera() as camera:
@@ -136,19 +135,19 @@ while (1):
         plt.imshow(image)
 
     # Process image
-    thresh = sd.processImg(image)#np.zeros((imgWidht, imgHeight, 3), dtype=np.uint8))#test 
+    thresh = sd.processImg(image, thresh_value=110)#np.zeros((imgWidht, imgHeight, 3), dtype=np.uint8))#test 
     print ('Image thresholded, pixel\'s mean: ' + str(thresh.mean()))
     if not flags.onRaspberry: plt.imshow(thresh)
     
     # Take the biggest shape only
     shape, area = sd.shapeBiggest()
     print("Biggest shape=" + shape + "\nArea=" + str(area))
-    if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_' + shape + '.jpg', img_labels)
+    if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_' + shape + '.jpg', image)
         
     # Take all the shapes
-    img_labels = sd.shapeAll()
-    if not flags.onRaspberry: plt.imshow(img_labels)
-    if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_labels.jpg', img_labels)
+    #img_labels = sd.shapeAll()
+    #if not flags.onRaspberry: plt.imshow(cv2.cvtColor(img_labels, cv2. COLOR_BGR2RGB))
+    #if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_labels.jpg', img_labels)
         
     if flags.onRaspberry:
         i+=1
@@ -157,8 +156,9 @@ while (1):
         break
 
 
-# In[ ]:
+# In[4]:
 
 
-get_ipython().system("jupyter nbconvert --output 'continous_prediction' --to script 01\\ -\\ Embedded\\ CV.ipynb")
+if not flags.onRaspberry:
+    get_ipython().system("jupyter nbconvert --output 'continous_capture_image' --to script 01\\ -\\ Embedded\\ shape\\ detector.ipynb")
 

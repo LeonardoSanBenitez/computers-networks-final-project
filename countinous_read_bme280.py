@@ -6,8 +6,8 @@ import bme280
 
 while(1):
   temperature,pressure,humidity = bme280.readBME280All()
-  f = open("log.txt", "w")
-  f.write("Temperature : " + str(temperature) + "C\n")
+  f = open("assets/log.txt", "w")
+  f.write("Temp.: " + str(temperature) + " C\n")
   f.write("Pressure: " + str(pressure) + "hPa\n")
-  f.write("Humidity : " + str(humidity) + "%")
+  f.write("Humidity : " + str(humidity) + "%\n")
   f.close()
