@@ -47,18 +47,23 @@ Pillow jupyter nb_conda
   * Numpy==1.18.1
   * ==something to TCP-IP socket?==	
   
-* LCD requirements
+* **LCD requirements**
 
   * adafruit-blinka
   * adafruit-circuitpython-charlcd
 
-* Sensor requiremetns
+* **Sensor requiremetns**
 
   * enable I2C
 
   * ```
     sudo apt-get install -y python-smbus i2c-tools
     ```
+
+* **Run as tasks in background**
+  * sudo python3 continuous_read_bme280.py &
+  * python3 continuous_capture_image.py &
+  * sudo python3 continuous_print_lcd.py &
 
 ## Cloud: ?
 
