@@ -10,11 +10,11 @@
 path_out = 'assets/'
 path_in = 'assets/image2.jpg' # in case we are reading from disk, not from camera
 
-imgWidht =800
+imgWidht = 800
 imgHeight = 800
 
 class Flags:
-    export = True
+    exportLog = True
     onRaspberry = True
 flags=Flags()   
 
@@ -120,14 +120,14 @@ i=0
 while (1):
     # Read Image
     if flags.onRaspberry:
-        with PiCamera() as camera:
-            camera.resolution = (imgWidht, imgHeight)
-            camera.framerate = 15
-            camera.rotation = 90
-            time.sleep(5)
-            image = np.empty((imgHeight * imgWidht * 3,), dtype=np.uint8)
-            camera.capture(image, 'bgr')
-            image = image.reshape((imgHeight, imgWidht, 3))
+        camera = PiCamera()
+        camera.resolution = (imgWidht, imgHeight)
+        camera.framerate = 15
+        camera.rotation = 90
+        time.sleep(5)
+        image = np.empty((imgHeight * imgWidht * 3,), dtype=np.uint8)
+        camera.capture(image, 'bgr')
+        image = image.reshape((imgHeight, imgWidht, 3))
     else:
         image = cv2.imread(path_in)
         image = cv2.resize(image, (imgWidht, imgHeight), interpolation = cv2.INTER_LINEAR)
@@ -141,12 +141,12 @@ while (1):
     # Take the biggest shape only
     shape, area = sd.shapeBiggest()
     #print("Biggest shape=" + shape + "\nArea=" + str(area))
-    if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_' + shape + '.jpg', image)
+    if flags.exportLog: cv2.imwrite(path_out + 'img' + str(i) + '_' + shape + '.jpg', image)
         
     # Take all the shapes
     #img_labels = sd.shapeAll()
     #if not flags.onRaspberry: plt.imshow(cv2.cvtColor(img_labels, cv2. COLOR_BGR2RGB))
-    #if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_labels.jpg', img_labels)
+    #if flags.exportLog: cv2.imwrite(path_out + 'img' + str(i) + '_labels.jpg', img_labels)
         
     if flags.onRaspberry:
         i+=1
