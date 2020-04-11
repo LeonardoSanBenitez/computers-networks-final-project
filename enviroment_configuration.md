@@ -49,15 +49,16 @@ Pillow jupyter nb_conda
   
 * **LCD requirements**
 
-  * adafruit-blinka
-  * adafruit-circuitpython-charlcd
+  * adafruit-blinka??
+  * `pip3 install adafruit-circuitpython-charlcd`
 
 * **Sensor requiremetns**
 
   * enable I2C
 
   * ```
-    sudo apt-get install -y python-smbus i2c-tools
+    sudo apt-get install -y i2c-tools
+    pip3 install smbus
     ```
 
 * **Run as tasks in background**
