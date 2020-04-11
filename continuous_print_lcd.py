@@ -7,7 +7,7 @@ import adafruit_character_lcd.character_lcd as characterlcd
 import os
 
 path_img = 'assets/'
-path_log = 'assets/log.txt'
+path_log = 'assets/log/log.txt'
 
 # Modify this if you have a different sized character LCD
 lcd_columns = 16
@@ -42,6 +42,7 @@ while True:
     f.close()
 
     # combine both lines into one update to the display
+    lcd.clear()
     lcd.message = lcd_line_1 + lcd_line_2
 
     #print("LCD update OK")

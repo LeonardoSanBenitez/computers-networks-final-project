@@ -10,12 +10,12 @@
 path_out = 'assets/'
 path_in = 'assets/image2.jpg' # in case we are reading from disk, not from camera
 
-imgWidht = 320
-imgHeight = 240
+imgWidht =800
+imgHeight = 800
 
 class Flags:
     export = True
-    onRaspberry = False
+    onRaspberry = True
 flags=Flags()   
 
 
@@ -111,7 +111,7 @@ class ShapeDetector:
             n+=1
         return img_labels
 sd = ShapeDetector()
-
+print("Shape detector init OK")
 
 # In[41]:
 
@@ -122,13 +122,12 @@ while (1):
     if flags.onRaspberry:
         with PiCamera() as camera:
             camera.resolution = (imgWidht, imgHeight)
-            camera.framerate = 25
-            camera.start_preview()
-            time.sleep(2) # warm up time
-            image = np.empty((imgWidht, imgHeight, 3), dtype=np.uint8)
-            camera.capture(image, 'rgb')
-            camera.stop_preview()
-            print("Image captured, shape " + str(image.shape))
+            camera.framerate = 15
+            camera.rotation = 90
+            time.sleep(5)
+            image = np.empty((imgHeight * imgWidht * 3,), dtype=np.uint8)
+            camera.capture(image, 'bgr')
+            image = image.reshape((imgHeight, imgWidht, 3))
     else:
         image = cv2.imread(path_in)
         image = cv2.resize(image, (imgWidht, imgHeight), interpolation = cv2.INTER_LINEAR)
@@ -136,12 +135,12 @@ while (1):
 
     # Process image
     thresh = sd.processImg(image, thresh_value=110)#np.zeros((imgWidht, imgHeight, 3), dtype=np.uint8))#test 
-    print ('Image thresholded, pixel\'s mean: ' + str(thresh.mean()))
+    #print ('Image thresholded, pixel\'s mean: ' + str(thresh.mean()))
     if not flags.onRaspberry: plt.imshow(thresh)
     
     # Take the biggest shape only
     shape, area = sd.shapeBiggest()
-    print("Biggest shape=" + shape + "\nArea=" + str(area))
+    #print("Biggest shape=" + shape + "\nArea=" + str(area))
     if flags.export: cv2.imwrite(path_out + 'img' + str(i) + '_' + shape + '.jpg', image)
         
     # Take all the shapes
@@ -151,7 +150,7 @@ while (1):
         
     if flags.onRaspberry:
         i+=1
-        print('------------------------------------')
+        #print('------------------------------------')
     else:
         break
 
