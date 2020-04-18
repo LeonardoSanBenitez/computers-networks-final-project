@@ -1,0 +1,38 @@
+.last-image img, .last-segmentation-image img {
+  width: 100%;
+}
+
+.card-board > * {
+  margin-top: 10px;
+}
+
+.card-board .card{
+  height: 100%;
+}
+
+#map #alert, #map #more-info {
+  position: absolute;
+  height: 30px;
+  width: 30px;
+  right: 10px;
+  font-size: 25px;
+}
+#map #alert{
+  display: none;
+  bottom: 50px;
+  color: red;
+}
+
+#map #more-info{
+  bottom: 10px;
+  color: #3e95cd
+}
+
+#map #explanation{
+  margin: 0px 50px 0px 0px;
+  min-height: 90px;
+  vertical-align: bottom;
+}
+#map .card-body{
+    text-align: center
+}

@@ -191,7 +191,8 @@ if __name__ == "__main__":
 
     lcd = LCD()
     motor = Motor()
-    policy = PolicyShape()
+    policy1 = PolicyShape()
+    policy2 = PolicyDistance()
     camera = Camera()
     executor = concurrent.futures.ThreadPoolExecutor()
 
@@ -206,15 +207,18 @@ if __name__ == "__main__":
         future1 = executor.submit(readGY521)
         future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
+        future4 = executor.submit(hcsr04.read)
 
-        while not (future1.done() & future2.done() & future3.done()):
+        while not (future1.done() & future2.done() & future3.done() & future4.done()):
             continue
         payload1 = future1.result()
         payload2 = future2.result()
         payload3 = future3.result()
+        payload4 = future3.result()
 
-        approved = policy.validate(payload3)
-        if approved:
+        good_frame = policy1.validate(payload3)
+        too_close = policy2.validate(payload4)
+        if good_frame or too_close:
             # Found someting interesting
             mem = "memorable image"
             # Move randomly from -90 to -180 or 90 to 180
