@@ -1,5 +1,5 @@
 # AI
-tensorflow==1.14.0 # tensorflow==2.0.0
+tensorflow==1.15.2 # tensorflow==2.0.0
 Keras==2.2.4 # Keras==2.3.0
 keras_tqdm==2.0.1
 mrcnn==0.2
