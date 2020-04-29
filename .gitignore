@@ -1,3 +1,5 @@
 assets/
 */assets/
 */predictive_models/
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/

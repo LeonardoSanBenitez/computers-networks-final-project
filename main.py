@@ -170,16 +170,43 @@ class LCD():
 
 
 class Motor():
+    # We'll need to use an Dual 1-of-4 Demultiplexer, because Raspbery only have 2 PWMs
+    # Tutorial: https://circuitdigest.com/microcontroller-projects/raspberry-pi-pwm-tutorial
     def __init__(self):
         pass
 
     def move(self, speed):
-        # Receve an speed, from -1 to 1
-        pass
+        # Brief: Receve an speed, from -1 to 1
+        # Return: nothing
+
+        if speed>0:
+            # PWM1_DIR = foward
+            # PWM1=speed
+
+            # PWM2_DIR = foward
+            # PWM2=speed
+        elif speed<0:
+            # PWM1_DIR = backward
+            # PWM1=speed
+
+            # PWM2_DIR = backward
+            # PWM2=speed
+        else:
+            # PWM1=0
+            # PWM2=0
 
     def turn(self, angle):
         # Receive an angle to turn, from -180 to 180
         # angle=0 keep in the same direction
+        if angle>0:
+            # PWM1_DIR = foward
+            # PWM1=255
+            # PWM2_DIR = backward
+            # PWM2=255
+            # wait xxx time (heuristic)
+            # PWM1=0
+            # PWM2=0
+        elif angle<0:
         pass
 
 
