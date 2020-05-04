@@ -14,137 +14,12 @@ from adafruit_character_lcd import character_lcd
 import board
 import digitalio
 
+import SelectionPolicy
+import Sensor
+
 
 class Flags:
     exportLog = True
-
-
-def readGY521():
-    # Communicate with MSP430 and get the INTEGRATED data
-    # Return [(x,y), (dirX, dirY)]
-    print("begin readGY521...")
-    time.sleep(1)
-    # TODO:
-    print("...Finishing readGY521")
-    return [(randrange(10), randrange(10)), (randrange(-1, 2), randrange(-1, 2))]
-
-class Camera:
-    def __init__(self, imgWidht=800, imgHeight=800):
-        self.imgWidht = imgWidht
-        self.imgHeight = imgHeight
-        self.camera = PiCamera()
-        self.camera.resolution = (imgWidht, imgHeight)
-        self.camera.framerate = 15
-        self.camera.rotation = 90
-        time.sleep(5)
-        self.camera.start_preview()
-
-    def captureFrame(self):
-        print("begin readCamera...")
-        image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
-        self.camera.capture(image, 'bgr')
-        image = image.reshape((self.imgHeight, self.imgWidht, 3))
-        print("...Finishing readCamera")
-        return image
-
-    def __del__(self):
-        self.camera.stop_preview()
-
-
-# TODO: This should be an specialization of RememberingPolicy class
-class PolicyShape:
-    contours = None
-    image = None
-
-    def __init__(self):
-        pass
-
-    def _detect(self, c):
-        # initialize the shape name and approximate the contour
-        shape = "unidentified"
-        peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-
-        # if the shape is a triangle, it will have 3 vertices
-        if len(approx) == 3:
-            shape = "triangle"
-        # if the shape has 4 vertices, it is either a square or
-        # a rectangle
-        elif len(approx) == 4:
-            # compute the bounding box of the contour and use the
-            # bounding box to compute the aspect ratio
-            (x, y, w, h) = cv2.boundingRect(approx)
-            ar = w / float(h)
-            # a square will have an aspect ratio that is approximately
-            # equal to one, otherwise, the shape is a rectangle
-            shape = "square" if ar >= 0.95 and ar <= 1.05 else "rectangle"
-        # if the shape is a pentagon, it will have 5 vertices
-        elif len(approx) == 5:
-            shape = "pentagon"
-        elif len(approx) == 6:
-            shape = "hexagon"
-        else:
-            shape = None
-        # return the name of the shape
-        return shape
-
-    def _processImg(self, image, thresh_value=60):
-        # convert the resized image to grayscale, blur it slightly, and threshold it
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        thresh = cv2.threshold(blurred, thresh_value,
-                               255, cv2.THRESH_BINARY)[1]
-        _, self.contours, _ = cv2.findContours(
-            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        self.image = image.copy()
-        return thresh
-
-    def _shapeBiggest(self):
-        assert self.contours != None, ('processed image first')
-        if len(self.contours) != 0:
-            # find the biggest area
-            c = max(self.contours, key=cv2.contourArea)
-            area = cv2.contourArea(c)
-            shape = self._detect(c)
-        else:
-            shape = None
-            area = 0
-        return shape, area
-
-    def _shapeAll(self, verbose=1):
-        assert type(self.image) != type(None), ('processed image first')
-        img_labels = self.image.copy()
-        n = 0
-        for c in self.contours:
-            # compute the center of the contour, then _detect the name of the
-            # shape using only the contour
-            M = cv2.moments(c)
-            cX = int((M["m10"] / (M["m00"]+1)))
-            cY = int((M["m01"] / (M["m00"]+1)))
-            shape = self._detect(c)
-
-            cv2.drawContours(img_labels, [c], -1, (0, 255, 0), 2)
-            cv2.putText(img_labels, shape, (cX, cY),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (255, 255, 255), 2)
-            # show the output img_labels
-            if verbose > 0:
-                print('Shape ' + str(n) + '=' + shape +
-                      "\t\t Area=" + str(cv2.contourArea(c)))
-            n += 1
-        return img_labels
-
-    def validate(self, image):
-        self._processImg(image, thresh_value=110)
-
-        # Take the biggest shape only
-        shape, area = self._shapeBiggest()
-        print('Found shape ', shape, 'of size ', area)
-        if (shape != None):  # and area>areaThresh) #TODO: area threshold
-            return True
-        else:
-            return False
-
 
 class LCD():
     def __init__(self):
@@ -216,10 +91,11 @@ if __name__ == "__main__":
     path_out = 'assets/'
     i=0
 
+    gy521 = GY521()
     lcd = LCD()
     motor = Motor()
-    policy1 = PolicyShape()
-    policy2 = PolicyDistance()
+    policy1 = SelectionPolicy.Shape()
+    policy2 = SelectionPolicy.Distance(threshold=10)
     camera = Camera()
     executor = concurrent.futures.ThreadPoolExecutor()
 
@@ -231,7 +107,7 @@ if __name__ == "__main__":
     print("Version     :" + str(chip_version))
 
     while(1):
-        future1 = executor.submit(readGY521)
+        future1 = executor.submit(gy521.read)
         future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
         future4 = executor.submit(hcsr04.read)

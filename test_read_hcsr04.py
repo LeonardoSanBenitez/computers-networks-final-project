@@ -17,6 +17,10 @@ GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 
 def distance():
+    '''
+    Brief: Return the distance in cm/s
+    '''
+
     # set Trigger to HIGH
     GPIO.output(GPIO_TRIGGER, True)
 
