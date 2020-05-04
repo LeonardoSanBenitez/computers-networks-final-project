@@ -55,26 +55,26 @@ class Motor():
         # Return: nothing
 
         if speed>0:
-            # PWM1_DIR = foward
+            pass# PWM1_DIR = foward
             # PWM1=speed
 
             # PWM2_DIR = foward
             # PWM2=speed
         elif speed<0:
-            # PWM1_DIR = backward
+            pass# PWM1_DIR = backward
             # PWM1=speed
 
             # PWM2_DIR = backward
             # PWM2=speed
         else:
-            # PWM1=0
+            pass# PWM1=0
             # PWM2=0
 
     def turn(self, angle):
         # Receive an angle to turn, from -180 to 180
         # angle=0 keep in the same direction
         if angle>0:
-            # PWM1_DIR = foward
+            pass# PWM1_DIR = foward
             # PWM1=255
             # PWM2_DIR = backward
             # PWM2=255
@@ -82,7 +82,7 @@ class Motor():
             # PWM1=0
             # PWM2=0
         elif angle<0:
-        pass
+            pass
 
 
 if __name__ == "__main__":
@@ -91,12 +91,13 @@ if __name__ == "__main__":
     path_out = 'assets/'
     i=0
 
-    gy521 = GY521()
+    hcsr04 = Sensor.HCSR04()
+    gy521 = Sensor.GY521()
     lcd = LCD()
     motor = Motor()
     policy1 = SelectionPolicy.Shape()
     policy2 = SelectionPolicy.Distance(threshold=10)
-    camera = Camera()
+    camera = Sensor.Camera()
     executor = concurrent.futures.ThreadPoolExecutor()
 
     # Init BME
@@ -117,7 +118,7 @@ if __name__ == "__main__":
         payload1 = future1.result()
         payload2 = future2.result()
         payload3 = future3.result()
-        payload4 = future3.result()
+        payload4 = future4.result()
 
         good_frame = policy1.validate(payload3)
         too_close = policy2.validate(payload4)
@@ -145,6 +146,7 @@ if __name__ == "__main__":
         # TODO: send to server
         print(payload1[0], " = ", mem, ", with temperature ",
               payload2['temperature'], " C")
+        print("Distance = ", payload4)
         print('-----------------')
         if flags.exportLog: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)

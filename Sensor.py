@@ -20,7 +20,7 @@ class Camera (Sensor):
         self.camera.start_preview()
 
     def captureFrame(self):
-        print("begin readCamera...")
+        print("begin readCamera...", end='')
         image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
         self.camera.capture(image, 'bgr')
         image = image.reshape((self.imgHeight, self.imgWidht, 3))
@@ -39,7 +39,7 @@ class GY521 (Sensor):
         Brief: Communicate with MSP430 and get the INTEGRATED data
         Return: [(x,y), (dirX, dirY)]
         '''
-
+        if verbose: print('begining readGY521...', end='')
         time.sleep(1)
         # TODO:
         if verbose: print("...Finishing readGY521")
@@ -62,11 +62,11 @@ class HCSR04 (Sensor):
         GPIO.setup(gpioEcho, GPIO.IN)
 
 
-    def read():
+    def read(self, verbose=1):
         '''
         Return: distance in cm/s
         '''
-
+        if verbose: print ('begining readHCSR...', end='')
         # set Trigger to HIGH
         GPIO.output(self.gpioTrigger, True)
 
@@ -90,5 +90,5 @@ class HCSR04 (Sensor):
         # multiply with the sonic speed (34300 cm/s)
         # and divide by 2, because there and back
         distance = (TimeElapsed * 34300) / 2
-
+        if verbose: print ('finished')
         return distance
