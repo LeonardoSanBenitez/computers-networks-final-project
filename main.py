@@ -25,7 +25,7 @@ import json
 
 
 class Flags:
-    exportLog = True
+    exportLog = False
     alwaysMemorable = True
 
 class LCD():
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     explorationRange = 8
     flags = Flags()
     path_out = 'assets/'
-    serverURL = 'http://0.0.0.0:5000/receive/'
+    serverURL = 'http://192.168.0.51:5000/receive/'
     i=0
 
     hcsr04 = Sensor.HCSR04()
@@ -116,8 +116,9 @@ if __name__ == "__main__":
         future3 = executor.submit(camera.captureFrame)
         future4 = executor.submit(hcsr04.read)
 
-        while not (future1.done() & future2.done() & future3.done() & future4.done()):
-            continue
+        #while not (future1.done() & future2.done() & future3.done() & future4.done()):
+        #    continue
+        concurrent.futures.wait([future1, future2, future3, future4], timeout=5)
         payload1 = future1.result()
         payload2 = future2.result()
         payload3 = future3.result()
@@ -147,11 +148,11 @@ if __name__ == "__main__":
 
         # Print in terminal
         print('Position:', payload1[0])
-        print('Direction:' payload1[1])
+        print('Direction:', payload1[1])
         print('Temperature:', payload2['temperature'], 'C')
         print('Memorable:', memorable)
         print("Distance:", payload4)
-        print('-----------------')
+        
 
         # Send to server
         data = {'position': payload1[0],
@@ -161,13 +162,15 @@ if __name__ == "__main__":
         if memorable:
             data['image'] = impayload3g.tolist()
 
-        requests.post(serverURL, 
+        respose = requests.post(serverURL, 
                       headers={'Content-Type': 'application/json'},
                       data=json.dumps(data))
-        # TODO: verify request return?
+        print('Data sent, with response', response.status_code)
+        # TODO Send takes to much, I think I should put it as a thread
 
         # Save in SD card
         if flags.exportLog: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)
             print('saved ', i, 'image')
             i+=1
+        print('-----------------')
