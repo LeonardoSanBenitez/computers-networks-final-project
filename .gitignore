@@ -3,3 +3,6 @@ assets/
 */predictive_models/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/
+
+__pycache__/
+*/__pycache__/

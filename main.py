@@ -1,3 +1,8 @@
+# Math and ML
+import cv2
+import numpy as np
+
+# Utils 
 import concurrent.futures
 from subprocess import Popen, PIPE
 from random import randrange
@@ -5,21 +10,23 @@ from random import choice
 from datetime import datetime
 import os
 import time
-import cv2
-import numpy as np
-from picamera import PiCamera
 
-from bme280 import Bme280
-from adafruit_character_lcd import character_lcd
+# hardware, sensors and actuators
 import board
 import digitalio
-
+from picamera import PiCamera
+from adafruit_character_lcd import character_lcd
 import SelectionPolicy
 import Sensor
+
+# Web
+import requests
+import json
 
 
 class Flags:
     exportLog = True
+    alwaysMemorable = True
 
 class LCD():
     def __init__(self):
@@ -89,23 +96,19 @@ if __name__ == "__main__":
     explorationRange = 8
     flags = Flags()
     path_out = 'assets/'
+    serverURL = 'http://0.0.0.0:5000/receive/'
     i=0
 
     hcsr04 = Sensor.HCSR04()
     gy521 = Sensor.GY521()
+    bme280 = Sensor.Bme280()
     lcd = LCD()
     motor = Motor()
+    camera = Sensor.Camera()
     policy1 = SelectionPolicy.Shape()
     policy2 = SelectionPolicy.Distance(threshold=10)
-    camera = Sensor.Camera()
+    
     executor = concurrent.futures.ThreadPoolExecutor()
-
-    # Init BME
-    bme280 = Bme280()
-    (chip_id, chip_version) = bme280.readBME280ID()
-    print("Sensor bme280 init OK")
-    print("Chip ID     :" + str(chip_id))
-    print("Version     :" + str(chip_version))
 
     while(1):
         future1 = executor.submit(gy521.read)
@@ -122,32 +125,48 @@ if __name__ == "__main__":
 
         good_frame = policy1.validate(payload3)
         too_close = policy2.validate(payload4)
-        if good_frame or too_close:
+        memorable = good_frame or too_close or flags.alwaysMemorable
+        if memorable:
             # Found someting interesting
-            mem = "memorable image"
             # Move randomly from -90 to -180 or 90 to 180
             motor.turn(randrange(90, 180)*choice([-1, 1]))
             motor.move(1)
         elif (payload1[0][0]**2 + payload1[0][1]**2) > explorationRange:
             # No object, but out of range
-            mem = "nothing"
             # Move randomly from -135 to -180 or 135 to 180
             motor.turn(randrange(135, 180)*choice([-1, 1]))
             motor.move(1)
         else:
             # No object, still inside range
-            mem = "nothing"
+            pass
 
         # Local interface
-        lcd_line_1 = "Memorable: " + str(future3.result())
+        lcd_line_1 = "Memorable: " + str(memorable)
         lcd_line_2 = "Temp.: " + str(future2.result()['temperature']) + " C"
         executor.submit(lcd.update, lcd_line_1 + '\n' + lcd_line_2)
 
-        # TODO: send to server
-        print(payload1[0], " = ", mem, ", with temperature ",
-              payload2['temperature'], " C")
-        print("Distance = ", payload4)
+        # Print in terminal
+        print('Position:', payload1[0])
+        print('Direction:' payload1[1])
+        print('Temperature:', payload2['temperature'], 'C')
+        print('Memorable:', memorable)
+        print("Distance:", payload4)
         print('-----------------')
+
+        # Send to server
+        data = {'position': payload1[0],
+                'direction': payload1[1],
+                'temperature': payload2['temperature'],
+                'haveImage': memorable}
+        if memorable:
+            data['image'] = impayload3g.tolist()
+
+        requests.post(serverURL, 
+                      headers={'Content-Type': 'application/json'},
+                      data=json.dumps(data))
+        # TODO: verify request return?
+
+        # Save in SD card
         if flags.exportLog: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)
             print('saved ', i, 'image')

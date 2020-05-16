@@ -151,8 +151,9 @@ class InstanceSegmentation:
     frame = np.uint8(frame)
     return frame
 
-  def predict (self, verbose=0):
-    raw_image = plt.imread('static/img/last_image.jpg')
+  def predict (self, raw_image=None, verbose=0):
+    if raw_image==None:
+        raw_image = plt.imread('static/img/last_image.jpg')
     raw_image = self._preProcessFrame(raw_image)
 
     if verbose: plt.imshow(raw_image)
