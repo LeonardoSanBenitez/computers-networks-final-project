@@ -1,12 +1,19 @@
 import socket
 
 # Samir's server: 54.211.210.101:10100
-HOST = '54.211.210.101'  # The server's hostname or IP address
-PORT = 10100        # The port used by the server
+HOST = '127.0.0.1'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
+HEADERSIZE = 10
+payload = "{'data1':666, 'data2':667}"
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-    s.sendall(b'Hello, world')
-    data = s.recv(1024)
 
-print('Received back:', repr(data))
+    msg = f"{len(payload):<{HEADERSIZE}}"+payload
+    print (msg)
+
+    s.sendall(bytes(msg, "utf-8"))
+    full_msg = s.recv(64)
+    s.close()
+
+print('Received back:', full_msg)

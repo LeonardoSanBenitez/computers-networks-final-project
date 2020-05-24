@@ -162,6 +162,7 @@ if __name__ == "__main__":
         if memorable:
             data['image'] = impayload3g.tolist()
 
+        #TODO: should I close the request??
         respose = requests.post(serverURL, 
                       headers={'Content-Type': 'application/json'},
                       data=json.dumps(data))
