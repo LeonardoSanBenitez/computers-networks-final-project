@@ -23,12 +23,12 @@ class Camera (Sensor):
         time.sleep(5)
         self.camera.start_preview()
 
-    def captureFrame(self):
-        print("begin readCamera...", end='')
+    def captureFrame(self, verbose=True):
+        if verbose: print("begin readCamera...", end='')
         image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
         self.camera.capture(image, 'bgr')
         image = image.reshape((self.imgHeight, self.imgWidht, 3))
-        print("...Finishing readCamera")
+        if verbose: print("...Finishing readCamera")
         return image
 
     def __del__(self):

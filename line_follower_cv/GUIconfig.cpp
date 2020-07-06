@@ -32,7 +32,7 @@ void _hough(int, void *);
 
 int main()
 {
-    src = imread("images/lines_0.jpeg", IMREAD_COLOR);
+    src = imread("assets/lines_0.jpeg", IMREAD_COLOR);
 
     if (src.empty()) return -1;
 
