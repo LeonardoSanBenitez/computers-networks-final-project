@@ -37,7 +37,7 @@ MainWindow::~MainWindow()
 /* Robot control over network*/
 void MainWindow::on_buttonSend_clicked()
 {
-    QString url = "http://google.com";
+    QString url = "http://google.com";//raspberry server
     url += "?dir=" + QString::number(dir);
     url += "&mov=" + QString::number(mov);
     url += "&thresh=" + QString::number(threshold);
@@ -60,7 +60,7 @@ void MainWindow::sendFinished (QNetworkReply *reply) {
 
 void MainWindow::on_buttonReceive_clicked()
 {
-    QString url = "http://google.com";
+    QString url = "http://google.com";//raspberry server
     url += "/update_image";
     qDebug() << "Requesting to " << url;
     requestReceive.setUrl(QUrl(url));

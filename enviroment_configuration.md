@@ -25,19 +25,12 @@ conda activate devRaspberryCV
 pip3 install -r requirements.txt	
 ```
 
-
-
-
-matplotlib seaborn \
-pandas   tensorflow keras \
-Pillow jupyter nb_conda
-
 ## Embedded: venv
 * mainly just production
 
 * To activate: `source .virtualenvs/cv/bin/activate`
 
-* See instalation datails in *Raspberry - OpenCV*
+* See instalation details in *Raspberry - OpenCV*
 
 * **Requirements**
   * raspbian strech lite
@@ -45,7 +38,6 @@ Pillow jupyter nb_conda
   * Python==3.5 
   * picamera
   * Numpy==1.18.1
-  * ==something to TCP-IP socket?==	
   
 * **LCD requirements**
 
@@ -67,14 +59,3 @@ Pillow jupyter nb_conda
   * sudo python3 continuous_print_lcd.py &
 
 ## Cloud: ?
-
-
-
-
-
-
-
-## External libs
-
-* Pillow
-  * free library for the Python programming language that adds support for opening, manipulating, and saving many different image file formats

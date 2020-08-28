@@ -62,19 +62,22 @@ class Motor():
         # Return: nothing
 
         if speed>0:
-            pass# PWM1_DIR = foward
+            pass
+            # PWM1_DIR = foward
             # PWM1=speed
 
             # PWM2_DIR = foward
             # PWM2=speed
         elif speed<0:
-            pass# PWM1_DIR = backward
+            pass
+            # PWM1_DIR = backward
             # PWM1=speed
 
             # PWM2_DIR = backward
             # PWM2=speed
         else:
-            pass# PWM1=0
+            pass
+            # PWM1=0
             # PWM2=0
 
     def turn(self, angle):
