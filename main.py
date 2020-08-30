@@ -52,8 +52,7 @@ class LCD():
 
 
 class Motor():
-    # We'll need to use an Dual 1-of-4 Demultiplexer, because Raspbery only have 2 PWMs
-    # Tutorial: https://circuitdigest.com/microcontroller-projects/raspberry-pi-pwm-tutorial
+    # TODO: send to MSP430 via UART
     def __init__(self):
         pass
 
@@ -114,13 +113,12 @@ if __name__ == "__main__":
     executor = concurrent.futures.ThreadPoolExecutor()
 
     while(1):
+        #TODO: give more descriptive names
         future1 = executor.submit(gy521.read)
         future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
         future4 = executor.submit(hcsr04.read)
 
-        #while not (future1.done() & future2.done() & future3.done() & future4.done()):
-        #    continue
         concurrent.futures.wait([future1, future2, future3, future4], timeout=5)
         payload1 = future1.result()
         payload2 = future2.result()
@@ -156,7 +154,6 @@ if __name__ == "__main__":
         print('Memorable:', memorable)
         print("Distance:", payload4)
         
-
         # Send to server
         data = {'position': payload1[0],
                 'direction': payload1[1],
