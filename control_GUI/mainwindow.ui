@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>382</width>
+    <height>281</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="buttonStop">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>190</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonAdvance">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>150</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Advance</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonRight">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>170</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Turn Right</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonLeft">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>170</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Turn Left</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderThreshold">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>160</y>
+      <width>22</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>120</y>
+      <width>411</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QCommandLinkButton" name="buttonSend">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>200</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Send</string>
+    </property>
+   </widget>
+   <widget class="QCommandLinkButton" name="buttonReceive">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>80</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Receive</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="image">
+    <property name="geometry">
+     <rect>
+      <x>26</x>
+      <y>2</y>
+      <width>331</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Theshold</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>382</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHowTo"/>
+    <addaction name="actionAboutQt"/>
+    <addaction name="actionAboutUs"/>
+   </widget>
+   <widget class="QMenu" name="menuconfiguration">
+    <property name="title">
+     <string>Configurations</string>
+    </property>
+    <addaction name="actionSet_root_IP"/>
+    <addaction name="actionSet_robot_exploration_radius"/>
+    <addaction name="actionSet_robot_whatever"/>
+    <addaction name="separator"/>
+    <addaction name="actionChange_interface_color"/>
+    <addaction name="actionChange_interface_language"/>
+   </widget>
+   <addaction name="menuAbout"/>
+   <addaction name="menuconfiguration"/>
+  </widget>
+  <action name="actionAboutUs">
+   <property name="text">
+    <string>About us</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionHowTo">
+   <property name="text">
+    <string>How to</string>
+   </property>
+  </action>
+  <action name="actionSet_root_IP">
+   <property name="text">
+    <string>Set robot IP</string>
+   </property>
+  </action>
+  <action name="actionSet_robot_exploration_radius">
+   <property name="text">
+    <string>Set robot exploration radius</string>
+   </property>
+  </action>
+  <action name="actionSet_robot_whatever">
+   <property name="text">
+    <string>Set robot whatever</string>
+   </property>
+  </action>
+  <action name="actionChange_interface_color">
+   <property name="text">
+    <string>Change interface color</string>
+   </property>
+  </action>
+  <action name="actionChange_interface_language">
+   <property name="text">
+    <string>Change interface language</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

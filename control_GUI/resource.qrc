@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/last_image.jpg</file>
+    </qresource>
+</RCC>

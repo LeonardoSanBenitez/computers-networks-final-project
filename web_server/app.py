@@ -22,15 +22,15 @@ def receive():
   print('request received')
   if not request.is_json:
     return 'The payload must be a JSON', 422
-  print('will read...')
   content = request.get_json()
   temperature = content['temperature']
+  print('Temperature is', temperature)
   if content['haveImage']==1:
     img = np.array(content['image'])
     print('read image with shape', img.shape)
     cv2.imwrite('assets/last_image.jpg', img)
   
-  return 'fuck yah'
+  return 'thanks!', 200
 
 
 @app.after_request

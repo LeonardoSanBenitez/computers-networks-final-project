@@ -53,8 +53,7 @@ class LCD():
 
 
 class Motor():
-    # We'll need to use an Dual 1-of-4 Demultiplexer, because Raspbery only have 2 PWMs
-    # Tutorial: https://circuitdigest.com/microcontroller-projects/raspberry-pi-pwm-tutorial
+    # TODO: send to MSP430 via UART
     def __init__(self):
         pass
 
@@ -63,19 +62,22 @@ class Motor():
         # Return: nothing
 
         if speed>0:
-            pass# PWM1_DIR = foward
+            pass
+            # PWM1_DIR = foward
             # PWM1=speed
 
             # PWM2_DIR = foward
             # PWM2=speed
         elif speed<0:
-            pass# PWM1_DIR = backward
+            pass
+            # PWM1_DIR = backward
             # PWM1=speed
 
             # PWM2_DIR = backward
             # PWM2=speed
         else:
-            pass# PWM1=0
+            pass
+            # PWM1=0
             # PWM2=0
 
     def turn(self, angle):
@@ -92,7 +94,7 @@ class Motor():
         elif angle<0:
             pass
 
-#TODO: move in __main__
+#TODO: move into __main__
 import paho.mqtt.client as mqtt
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -139,6 +141,9 @@ if __name__ == "__main__":
         #concurrent.futures.wait([future2, future3, future4], timeout=5)
         #payload1 = future1.result()
         #payload2 = future2.result()
+
+        #TODO: give more descriptive names
+
         payload3 = future3.result()
         #payload4 = future4.result()
 
@@ -172,6 +177,7 @@ if __name__ == "__main__":
         #print("Distance:", payload4)
         print('-----------------')
 
+
         # Send to server
         #data = {#'position': payload1[0],
         #        #'direction': payload1[1],
@@ -181,14 +187,18 @@ if __name__ == "__main__":
         if memorable:
             data['image'] = payload3.tolist()
 
-        #requests.post(serverURL, 
+        #response = requests.post(serverURL, 
         #              headers={'Content-Type': 'application/json'},
         #              data=json.dumps(data))
         print('sending...')
         print(str(data))#send
         client.publish('redesIFSC/leonardo', payload='Fora Bolsonaro')
+        #print('Data sent, with response', response.status_code)
+        # TODO Send takes to much, I think I should put it as a thread
+
         # Save in SD card
         if flags.exportLog: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)
             print('saved ', i, 'image')
             i+=1
+        print('-----------------')
