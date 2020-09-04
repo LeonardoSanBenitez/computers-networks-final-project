@@ -25,9 +25,10 @@ import json
 
 
 class Flags:
-    exportLog = True
+    exportLog = False
     alwaysMemorable = True
-
+    sendMqtt = True
+    sendHttp = False
 class LCD():
     def __init__(self):
         # compatible with all versions of RPI as of Jan. 2019
@@ -96,13 +97,13 @@ if __name__ == "__main__":
     explorationRange = 8
     flags = Flags()
     path_out = 'assets/'
-    serverURL = 'http://0.0.0.0:5000/receive/'
+    serverURL = 'http://192.168.0.51:5000/receive/'
     i=0
 
-    hcsr04 = Sensor.HCSR04()
-    gy521 = Sensor.GY521()
-    bme280 = Sensor.Bme280()
-    lcd = LCD()
+    #hcsr04 = Sensor.HCSR04()
+    #gy521 = Sensor.GY521()
+    #bme280 = Sensor.Bme280()
+    #lcd = LCD()
     motor = Motor()
     camera = Sensor.Camera()
     policy1 = SelectionPolicy.Shape()
@@ -111,61 +112,60 @@ if __name__ == "__main__":
     executor = concurrent.futures.ThreadPoolExecutor()
 
     while(1):
-        future1 = executor.submit(gy521.read)
-        future2 = executor.submit(bme280.readBME280All)
+        #future1 = executor.submit(gy521.read)
+        #future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
-        future4 = executor.submit(hcsr04.read)
-
-        while not (future1.done() & future2.done() & future3.done() & future4.done()):
-            continue
-        payload1 = future1.result()
-        payload2 = future2.result()
+        #future4 = executor.submit(hcsr04.read)
+        #concurrent.futures.wait([future2, future3, future4], timeout=5)
+        #payload1 = future1.result()
+        #payload2 = future2.result()
         payload3 = future3.result()
-        payload4 = future4.result()
+        #payload4 = future4.result()
 
         good_frame = policy1.validate(payload3)
-        too_close = policy2.validate(payload4)
-        memorable = good_frame or too_close or flags.alwaysMemorable
+        #too_close = policy2.validate(payload4)
+        memorable = False#good_frame or too_close or flags.alwaysMemorable
         if memorable:
             # Found someting interesting
             # Move randomly from -90 to -180 or 90 to 180
             motor.turn(randrange(90, 180)*choice([-1, 1]))
             motor.move(1)
-        elif (payload1[0][0]**2 + payload1[0][1]**2) > explorationRange:
-            # No object, but out of range
-            # Move randomly from -135 to -180 or 135 to 180
-            motor.turn(randrange(135, 180)*choice([-1, 1]))
-            motor.move(1)
+        #elif (payload1[0][0]**2 + payload1[0][1]**2) > explorationRange:
+        #    # No object, but out of range
+        #    # Move randomly from -135 to -180 or 135 to 180
+        #    motor.turn(randrange(135, 180)*choice([-1, 1]))
+        #    motor.move(1)
         else:
             # No object, still inside range
             pass
 
         # Local interface
-        lcd_line_1 = "Memorable: " + str(memorable)
-        lcd_line_2 = "Temp.: " + str(future2.result()['temperature']) + " C"
-        executor.submit(lcd.update, lcd_line_1 + '\n' + lcd_line_2)
+        #lcd_line_1 = "Memorable: " + str(memorable)
+        #lcd_line_2 = "Temp.: " + str(future2.result()['temperature']) + " C"
+        #executor.submit(lcd.update, lcd_line_1 + '\n' + lcd_line_2)
 
         # Print in terminal
-        print('Position:', payload1[0])
-        print('Direction:' payload1[1])
-        print('Temperature:', payload2['temperature'], 'C')
+        #print('Position:', payload1[0])
+        #print('Direction:', payload1[1])
+        #print('Temperature:', payload2['temperature'], 'C')
         print('Memorable:', memorable)
-        print("Distance:", payload4)
+        #print("Distance:", payload4)
         print('-----------------')
 
         # Send to server
-        data = {'position': payload1[0],
-                'direction': payload1[1],
-                'temperature': payload2['temperature'],
-                'haveImage': memorable}
+        #data = {#'position': payload1[0],
+        #        #'direction': payload1[1],
+        #        'temperature': payload2['temperature'],
+        #        'haveImage': memorable}
+        data = {'nome': 'Leonardo'}
         if memorable:
-            data['image'] = impayload3g.tolist()
+            data['image'] = payload3.tolist()
 
-        requests.post(serverURL, 
-                      headers={'Content-Type': 'application/json'},
-                      data=json.dumps(data))
-        # TODO: verify request return?
-
+        #requests.post(serverURL, 
+        #              headers={'Content-Type': 'application/json'},
+        #              data=json.dumps(data))
+        print('sending...')
+        print(str(data))#send
         # Save in SD card
         if flags.exportLog: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)
