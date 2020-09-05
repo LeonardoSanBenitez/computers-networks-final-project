@@ -124,10 +124,10 @@ class Distance(SelectionPolicy):
         else:
             return False
 
-
 class Object (SelectionPolicy):
     '''
     Based on: https://towardsdatascience.com/face-detection-in-2-minutes-using-opencv-python-90f89d7c0f81
+    Return: bool
     '''
     imgWidht = None
     imgHeight = None
