@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import time
 
 
 class SelectionPolicy():
@@ -11,8 +10,7 @@ class SelectionPolicy():
         return True
 
 
-
-class Shape (SelectionPolicy):
+class SelectionPolicyByShape (SelectionPolicy):
     contours = None
     image = None
 
@@ -104,13 +102,14 @@ class Shape (SelectionPolicy):
         else:
             return False
 
-class Distance(SelectionPolicy):
+
+class SelectionPolicyByDistance(SelectionPolicy):
     '''
     Brief: Receive distance in cm/s
     '''
 
     threshold = None
-    
+
     def __init__(self, threshold):
         self.threshold = threshold
 
@@ -119,12 +118,13 @@ class Distance(SelectionPolicy):
         Brief: momento is memorable if distance<thresh (object is too close)
         Return: boolean
         '''
-        if distance<self.threshold:
-            return True 
+        if distance < self.threshold:
+            return True
         else:
             return False
 
-class Object (SelectionPolicy):
+
+class SelectionPolicyByObject (SelectionPolicy):
     '''
     Based on: https://towardsdatascience.com/face-detection-in-2-minutes-using-opencv-python-90f89d7c0f81
     Return: bool
@@ -134,25 +134,30 @@ class Object (SelectionPolicy):
     path_model = None
 
     def __init__(self, imgWidth=320, imgHeight=240, path_model='assets/models/haarcascade_frontalface_default.xml'):
+        '''
+        @Brief: the object to be detected is defined by the cascade model passed
+        '''
         self.imgHeight = imgHeight
         self.imgWidht = imgWidth
         self.path_model = path_model
 
-    def validate (self, img, verbose=0):
+    def validate(self, img, verbose=0):
         assert type(img) != type(None), ('invalid image')
         face_cascade = cv2.CascadeClassifier(self.path_model)
 
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-        if verbose: print(faces)
-        if len(faces)>0:
-            return True 
+        if verbose:
+            print(faces)
+        if len(faces) > 0:
+            return True
         else:
             return False
 
-class Movement(SelectionPolicy):
+
+class SelectionPolicyByMovement(SelectionPolicy):
     def __init__(self):
         pass
-    def validate (self, frame1, frame2):
-        pass    
 
+    def validate(self, frame1, frame2):
+        pass

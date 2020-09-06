@@ -7,152 +7,56 @@ import concurrent.futures
 from subprocess import Popen, PIPE
 from random import randrange
 from random import choice
-import os
-import time
-
-# hardware, sensors and actuators
-import board
-import digitalio
-from adafruit_character_lcd import character_lcd
-import SelectionPolicy
-
-# Web
-import requests
 import json
 
 # AI modules
 import perception
-import decision
+import reasoning
 import interaction
 import communication
 
-
-class Flags:
-    exportLog = False
-    alwaysMemorable = True
-    sendMqtt = True
-    sendHttp = False
-class LCD():
-    def __init__(self):
-        # compatible with all versions of RPI as of Jan. 2019
-        lcd_rs = digitalio.DigitalInOut(board.D16)
-        lcd_en = digitalio.DigitalInOut(board.D12)
-        lcd_d4 = digitalio.DigitalInOut(board.D25)
-        lcd_d5 = digitalio.DigitalInOut(board.D24)
-        lcd_d6 = digitalio.DigitalInOut(board.D23)
-        lcd_d7 = digitalio.DigitalInOut(board.D18)
-
-        self.lcd_columns = 16
-        self.lcd_rows = 2
-        lcd = character_lcd.Character_LCD_Mono(lcd_rs, lcd_en, lcd_d4, lcd_d5,
-                                               lcd_d6, lcd_d7, self.lcd_columns, self.lcd_rows)
-        lcd.clear()
-        time.sleep(2)
-        print("LCD init OK\n")
-
-    def update(self, message):
-        lcd.clear()
-        lcd.message = message
-
-#actuator led: rasp pin 16
-class Motor():
-    # TODO: send to MSP430 via UART
-    def __init__(self):
-        pass
-
-    def move(self, speed):
-        # Brief: Receve an speed, from -1 to 1
-        # Return: nothing
-
-        if speed>0:
-            pass
-            # PWM1_DIR = foward
-            # PWM1=speed
-
-            # PWM2_DIR = foward
-            # PWM2=speed
-        elif speed<0:
-            pass
-            # PWM1_DIR = backward
-            # PWM1=speed
-
-            # PWM2_DIR = backward
-            # PWM2=speed
-        else:
-            pass
-            # PWM1=0
-            # PWM2=0
-
-    def turn(self, angle):
-        # Receive an angle to turn, from -180 to 180
-        # angle=0 keep in the same direction
-        if angle>0:
-            pass# PWM1_DIR = foward
-            # PWM1=255
-            # PWM2_DIR = backward
-            # PWM2=255
-            # wait xxx time (heuristic)
-            # PWM1=0
-            # PWM2=0
-        elif angle<0:
-            pass
-
-#TODO: move into __main__
-import paho.mqtt.client as mqtt
-
-# The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    client.subscribe("redesIFSC/leonardo")
-
-# The callback for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect("broker.hivemq.com", 1883, 60)
+FLAGS = {
+    'exportLog': False,
+    'alwaysMemorable': True,
+    'sendMqtt': True,
+    'sendHttp': False,
+    'verbose': 1
+}
 
 if __name__ == "__main__":
     explorationRange = 8
-    flags = Flags()
-    path_out = 'assets/'
-    serverURL = 'http://192.168.0.51:5000/receive/'
-    i=0
+    path_out = 'assets/' 
+    i=0 #iteration count
 
     #hcsr04 = perception.Sensor_HCSR04()
     #gy521 = perception.Sensor_GY521()
-    #bme280 = perception.Sensor_Bme280()
-    #lcd = LCD()
-    motor = Motor()
+    bme280 = perception.Sensor_Bme280()
+    motor = interaction.MotorUART()
     camera = perception.Camera()
-    policy1 = SelectionPolicy.Shape()
-    policy2 = SelectionPolicy.Distance(threshold=10)
+    policy1 = reasoning.SelectionPolicyByShape()
+    policy2 = reasoning.SelectionPolicyByDistance(threshold=10)
+    mqtt = communication.MQTT(team='benitez_nagel', device='device_0', verbose=FLAGS['verbose'])
+    #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
     
     executor = concurrent.futures.ThreadPoolExecutor()
 
     while(1):
-        #future1 = executor.submit(gy521.read)
-        #future2 = executor.submit(bme280.readBME280All)
-        future3 = executor.submit(camera.captureFrame)
-        #future4 = executor.submit(hcsr04.read)
-        #concurrent.futures.wait([future2, future3, future4], timeout=5)
-        #payload1 = future1.result()
-        #payload2 = future2.result()
-
         #TODO: give more descriptive names
 
+        #future1 = executor.submit(gy521.read)
+        future2 = executor.submit(bme280.readBME280All)
+        future3 = executor.submit(camera.captureFrame)
+        #future4 = executor.submit(hcsr04.read)
+        concurrent.futures.wait([future2, future3], timeout=5)
+        
+        #payload1 = future1.result()
+        payload2 = future2.result()
         payload3 = future3.result()
         #payload4 = future4.result()
 
         good_frame = policy1.validate(payload3)
         #too_close = policy2.validate(payload4)
-        memorable = False#good_frame or too_close or flags.alwaysMemorable
+        memorable = False#good_frame or too_close or FLAGS['alwaysMemorable']
         if memorable:
             # Found someting interesting
             # Move randomly from -90 to -180 or 90 to 180
@@ -167,18 +71,17 @@ if __name__ == "__main__":
             # No object, still inside range
             pass
 
-        # Local interface
-        #lcd_line_1 = "Memorable: " + str(memorable)
-        #lcd_line_2 = "Temp.: " + str(future2.result()['temperature']) + " C"
-        #executor.submit(lcd.update, lcd_line_1 + '\n' + lcd_line_2)
+
 
         # Print in terminal
-        #print('Position:', payload1[0])
-        #print('Direction:', payload1[1])
-        #print('Temperature:', payload2['temperature'], 'C')
-        print('Memorable:', memorable)
-        #print("Distance:", payload4)
-        print('-----------------')
+        if FLAGS['verbose']>=2:
+            #print('Position:', payload1[0])
+            #print('Direction:', payload1[1])
+            #print('Temperature:', payload2['temperature'], 'C')
+            #print('Memorable:', memorable)
+            #print("Distance:", payload4)
+            #print('-----------------')
+            pass
 
 
         # Send to server
@@ -186,21 +89,16 @@ if __name__ == "__main__":
         #        #'direction': payload1[1],
         #        'temperature': payload2['temperature'],
         #        'haveImage': memorable}
-        data = {'nome': 'Leonardo'}
+        data = {'temp': payload2['temperature']}
         if memorable:
             data['image'] = payload3.tolist()
+        data = json.dumps(data)
 
-        #response = requests.post(serverURL, 
-        #              headers={'Content-Type': 'application/json'},
-        #              data=json.dumps(data))
-        print('sending...')
-        print(str(data))#send
-        client.publish('redesIFSC/leonardo', payload='Fora Bolsonaro')
-        #print('Data sent, with response', response.status_code)
-        # TODO Send takes to much, I think I should put it as a thread
+        if FLAGS['verbose']: print('Sending...'+data)
+        mqtt.send(data)
 
         # Save in SD card
-        if flags.exportLog: 
+        if FLAGS['exportLog']: 
             cv2.imwrite(path_out + 'img' + str(i) + '.jpg', payload3)
             print('saved ', i, 'image')
             i+=1
