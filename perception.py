@@ -1,55 +1,42 @@
-from ctypes import c_ubyte
-from ctypes import c_byte
-from ctypes import c_short
-import smbus
+import numpy as np
 import RPi.GPIO as GPIO
 import time
-import numpy as np
 from random import randrange
 from random import choice
 from picamera import PiCamera
 
+from ctypes import c_ubyte
+from ctypes import c_byte
+from ctypes import c_short
+import smbus
+
+
 class Sensor():
+    #TODO: some basic methods
     pass
 
-class Camera (Sensor):
-    def __init__(self, imgWidht=800, imgHeight=800):
-        self.imgWidht = imgWidht
-        self.imgHeight = imgHeight
-        self.camera = PiCamera()
-        self.camera.resolution = (imgWidht, imgHeight)
-        self.camera.framerate = 15
-        self.camera.rotation = 90
-        time.sleep(5)
-        self.camera.start_preview()
 
-    def captureFrame(self, verbose=True):
-        if verbose: print("begin readCamera...", end='')
-        image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
-        self.camera.capture(image, 'bgr')
-        image = image.reshape((self.imgHeight, self.imgWidht, 3))
-        if verbose: print("...Finishing readCamera")
-        return image
-
-    def __del__(self):
-        self.camera.stop_preview()
-
-
-class GY521 (Sensor):
+class Sensor_GY521 (Sensor):
     def __init__(self):
         pass
+
     def read(self, verbose=1):
         '''
         Brief: Communicate with MSP430 and get the INTEGRATED data
         Return: [(x,y), (dirX, dirY)]
         '''
-        if verbose: print('begining readGY521...', end='')
+        if verbose:
+            print('begining readGY521...', end='')
         time.sleep(1)
-        # TODO:
-        if verbose: print("...Finishing readGY521")
+        # TODO
+        raise Exception('Sensor GY521 not implemented')
+        if verbose:
+            print("...Finishing readGY521")
+        # mock return
         return [(randrange(10), randrange(10)), (randrange(-1, 2), randrange(-1, 2))]
 
-class HCSR04 (Sensor):
+
+class Sensor_HCSR04 (Sensor):
     def __init__(self, gpioTrigger=6, gpioEcho=26):
         '''
         Careful: Echo pin needs 5V->3.3V conversion
@@ -65,12 +52,12 @@ class HCSR04 (Sensor):
         GPIO.setup(gpioTrigger, GPIO.OUT)
         GPIO.setup(gpioEcho, GPIO.IN)
 
-
     def read(self, verbose=1):
         '''
         Return: distance in cm/s
         '''
-        if verbose: print ('begining readHCSR...', end='')
+        if verbose:
+            print('begining readHCSR...', end='')
         # set Trigger to HIGH
         GPIO.output(self.gpioTrigger, True)
 
@@ -94,26 +81,28 @@ class HCSR04 (Sensor):
         # multiply with the sonic speed (34300 cm/s)
         # and divide by 2, because there and back
         distance = (TimeElapsed * 34300) / 2
-        if verbose: print ('finished')
+        if verbose:
+            print('finished')
         return distance
 
 
-#--------------------------------------
-#  Read data from a digital pressure sensor.
-#
-#  Official datasheet available from :
-#  https://www.bosch-sensortec.com/bst/products/all_products/bme280
-#
-# Author     : Matt Hawkins
-# Adapted by : Leonardo Benitez
-# Date       : 21/01/2018
-#
-# https://www.raspberrypi-spy.co.uk/
-#
-#--------------------------------------
+class Sensor_Bme280 (Sensor):
+  '''
+  @Brief: Read data from a digital pressure sensor.
+  Official datasheet available from :
+  https://www.bosch-sensortec.com/bst/products/all_products/bme280
 
+  @Author     : Matt Hawkins
+  @Adapted by : Leonardo Benitez
+  @Date       : 21/01/2018
 
-class Bme280 (Sensor):
+  https://www.raspberrypi-spy.co.uk/
+
+  Pinout
+  3.3V
+  SDA -> rasp pin 2
+  SCL -> rasp pin 3
+  '''
   _bus = None
   _device = None
 
@@ -255,3 +244,28 @@ class Bme280 (Sensor):
         "humidity": humidity
     }
     return dict
+
+
+class Camera ():
+    def __init__(self, imgWidht=800, imgHeight=800):
+        self.imgWidht = imgWidht
+        self.imgHeight = imgHeight
+        self.camera = PiCamera()
+        self.camera.resolution = (imgWidht, imgHeight)
+        self.camera.framerate = 15
+        self.camera.rotation = 90
+        time.sleep(5)
+        self.camera.start_preview()
+
+    def captureFrame(self, verbose=True):
+        if verbose:
+            print("begin readCamera...", end='')
+        image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
+        self.camera.capture(image, 'bgr')
+        image = image.reshape((self.imgHeight, self.imgWidht, 3))
+        if verbose:
+            print("...Finishing readCamera")
+        return image
+
+    def __del__(self):
+        self.camera.stop_preview()

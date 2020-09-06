@@ -7,21 +7,24 @@ import concurrent.futures
 from subprocess import Popen, PIPE
 from random import randrange
 from random import choice
-from datetime import datetime
 import os
 import time
 
 # hardware, sensors and actuators
 import board
 import digitalio
-from picamera import PiCamera
 from adafruit_character_lcd import character_lcd
 import SelectionPolicy
-import Sensor
 
 # Web
 import requests
 import json
+
+# AI modules
+import perception
+import decision
+import interaction
+import communication
 
 
 class Flags:
@@ -51,7 +54,7 @@ class LCD():
         lcd.clear()
         lcd.message = message
 
-
+#actuator led: rasp pin 16
 class Motor():
     # TODO: send to MSP430 via UART
     def __init__(self):
@@ -122,12 +125,12 @@ if __name__ == "__main__":
     serverURL = 'http://192.168.0.51:5000/receive/'
     i=0
 
-    #hcsr04 = Sensor.HCSR04()
-    #gy521 = Sensor.GY521()
-    #bme280 = Sensor.Bme280()
+    #hcsr04 = perception.Sensor_HCSR04()
+    #gy521 = perception.Sensor_GY521()
+    #bme280 = perception.Sensor_Bme280()
     #lcd = LCD()
     motor = Motor()
-    camera = Sensor.Camera()
+    camera = perception.Camera()
     policy1 = SelectionPolicy.Shape()
     policy2 = SelectionPolicy.Distance(threshold=10)
     
