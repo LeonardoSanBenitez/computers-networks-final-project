@@ -1,8 +1,8 @@
 class LED():
-    def __init__(self, pin=16)
-    self._pin = 16
-    #TODO
-    pass
+    def __init__(self, pin=16):
+        self._pin = 16
+        #TODO
+        pass
 
 
 class Motor():

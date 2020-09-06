@@ -39,20 +39,15 @@ if __name__ == "__main__":
     #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
     
     executor = concurrent.futures.ThreadPoolExecutor()
-
+    if FLAGS['verbose']: print('Init done')
     while(1):
         #TODO: give more descriptive names
-
-        #future1 = executor.submit(gy521.read)
         future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
-        #future4 = executor.submit(hcsr04.read)
         concurrent.futures.wait([future2, future3], timeout=5)
         
-        #payload1 = future1.result()
-        payload2 = future2.result()
+        #payload2 = future2.result() #TODO: I'm having problems with the sensor... hardware connections??
         payload3 = future3.result()
-        #payload4 = future4.result()
 
         good_frame = policy1.validate(payload3)
         #too_close = policy2.validate(payload4)
@@ -71,25 +66,12 @@ if __name__ == "__main__":
             # No object, still inside range
             pass
 
-
-
-        # Print in terminal
-        if FLAGS['verbose']>=2:
-            #print('Position:', payload1[0])
-            #print('Direction:', payload1[1])
-            #print('Temperature:', payload2['temperature'], 'C')
-            #print('Memorable:', memorable)
-            #print("Distance:", payload4)
-            #print('-----------------')
-            pass
-
-
         # Send to server
         #data = {#'position': payload1[0],
         #        #'direction': payload1[1],
         #        'temperature': payload2['temperature'],
         #        'haveImage': memorable}
-        data = {'temp': payload2['temperature']}
+        data = {'temp': 666}#payload2['temperature']}
         if memorable:
             data['image'] = payload3.tolist()
         data = json.dumps(data)

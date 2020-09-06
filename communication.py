@@ -38,7 +38,7 @@ class LCD():
 import paho.mqtt.client as mqtt
 class MQTT():
 
-    def _on_connect(self, client, userdata, flags, rc):
+    def _on_connect(self, userdata, flags, rc):
         '''
         The callback for when the client receives a CONNACK response from the server.
         '''
@@ -46,14 +46,14 @@ class MQTT():
 
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        client.subscribe('redesIFSC/'+self._team+'/'+self._device)
+        self._client.subscribe('redesIFSC/'+self._team+'/'+self._device)
 
 
-    def _on_message(self, client, userdata, msg):
+    def _on_message(self, userdata, msg):
         '''
         @Brief: The callback for when a PUBLISH message is received from the server.
         '''
-        if self._verbose: print("[MQTT] Received: "+msg.topic+" "+str(msg.payload))
+        if self._verbose: print("[MQTT] Command received: "+msg.topic+" "+str(msg.payload))
         
 
     def __init__(self, team, device, broker_domain='broker.hivemq.com', broker_port=1883, verbose=0):
@@ -64,7 +64,7 @@ class MQTT():
         self._device = device
         self._verbose = verbose
 
-        self.client.connect(broker_domain, broker_port, 60)
+        self._client.connect(broker_domain, broker_port, 60)
 
     def send(self, payload):
         self._client.publish('redesIFSC/'+self._team+'/'+self._device, payload=payload)
