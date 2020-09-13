@@ -26,8 +26,7 @@ FLAGS = {
 if __name__ == "__main__":
     explorationRange = 8
     path_out = 'assets/' 
-    i=0 #iteration count
-
+    
     #hcsr04 = perception.Sensor_HCSR04()
     #gy521 = perception.Sensor_GY521()
     bme280 = perception.Sensor_Bme280()
@@ -37,16 +36,17 @@ if __name__ == "__main__":
     policy2 = reasoning.SelectionPolicyByDistance(threshold=10)
     mqtt = communication.MQTT(team='benitez_nagel', device='device_0', verbose=FLAGS['verbose'])
     #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
-    
     executor = concurrent.futures.ThreadPoolExecutor()
     if FLAGS['verbose']: print('Init done')
+    
+    i=0 #iteration count
     while(1):
         #TODO: give more descriptive names
         future2 = executor.submit(bme280.readBME280All)
         future3 = executor.submit(camera.captureFrame)
         concurrent.futures.wait([future2, future3], timeout=5)
         
-        #payload2 = future2.result() #TODO: I'm having problems with the sensor... hardware connections??
+        payload2 = future2.result()
         payload3 = future3.result()
 
         good_frame = policy1.validate(payload3)
@@ -71,13 +71,14 @@ if __name__ == "__main__":
         #        #'direction': payload1[1],
         #        'temperature': payload2['temperature'],
         #        'haveImage': memorable}
-        data = {'temp': 666}#payload2['temperature']}
+        data = {'temp': payload2['temperature']}
         if memorable:
             data['image'] = payload3.tolist()
         data = json.dumps(data)
 
-        if FLAGS['verbose']: print('Sending...'+data)
+        if FLAGS['verbose']: print('Sending... '+data)
         mqtt.send(data)
+        #http.send(data)
 
         # Save in SD card
         if FLAGS['exportLog']: 

@@ -1,4 +1,6 @@
-bme280 = Bme280()
+import perception
+
+bme280 = perception.Sensor_Bme280()
 (chip_id, chip_version) = bme280.readBME280ID()
 print("Sensor bme280 init OK")
 print("Chip ID     :" + str(chip_id))
