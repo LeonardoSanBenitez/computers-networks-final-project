@@ -86,3 +86,19 @@ class HTTP():
             print('[HTTP] Data sent, with response', response.status_code)
         return response.status_code
 
+
+import RPi.GPIO as GPIO
+class LED():
+    def __init__(self, pin=36):
+        self._pin = pin
+        self._is_on = False
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(self._pin, GPIO.OUT, initial=GPIO.HIGH)
+        
+    def toggle(self):
+        if self._is_on:
+            GPIO.output(self._pin, GPIO.LOW)
+            self._is_on = False
+        else:
+            GPIO.output(self._pin, GPIO.HIGH)
+            self._is_on = True

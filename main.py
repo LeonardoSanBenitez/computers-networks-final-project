@@ -34,6 +34,7 @@ if __name__ == "__main__":
     camera = perception.Camera()
     policy1 = reasoning.SelectionPolicyByShape()
     policy2 = reasoning.SelectionPolicyByDistance(threshold=10)
+    led = communication.LED()
     mqtt = communication.MQTT(team='benitez_nagel', device='device_0', verbose=FLAGS['verbose'])
     #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
     executor = concurrent.futures.ThreadPoolExecutor()
@@ -86,3 +87,4 @@ if __name__ == "__main__":
             print('saved ', i, 'image')
             i+=1
         print('-----------------')
+        led.toggle()
