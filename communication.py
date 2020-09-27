@@ -37,7 +37,7 @@ class LCD():
 
 import paho.mqtt.client as mqtt
 class MQTT():
-
+    #TODO: usar certificação e enviar para um broker privado; Ver exemplo em tests/manual_mqtt.py
     def _on_connect(self, userdata, flags, rc):
         '''
         The callback for when the client receives a CONNACK response from the server.
