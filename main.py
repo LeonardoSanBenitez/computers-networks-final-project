@@ -5,6 +5,8 @@ import numpy as np
 # Utils 
 import concurrent.futures
 import json
+from tempfile import TemporaryFile
+import base64
 
 # AI modules
 import perception
@@ -13,7 +15,7 @@ import interaction
 import communication
 
 FLAGS = {
-    'exportLog': False,
+    'exportLog': True,
     'alwaysMemorable': True,
     'sendMqtt': True,
     'sendHttp': False,
@@ -65,9 +67,16 @@ if __name__ == "__main__":
                 'pressure': payload_bme['pressure'],
                 'humidity': payload_bme['humidity'],
                 'haveImage': memorable}
-        if FLAGS['verbose']: print('Sending... ' + data)#print without image, otherwise...
+        if FLAGS['verbose']: print('Sending... ' + json.dumps(data))#print without image, otherwise...
+        
+
+
         if memorable:
-            data['image'] = payload_camera.tolist()
+        #    data['image'] = payload_camera.tolist()
+            with TemporaryFile() as f:
+                np.save(f, payload_camera)
+                s = base64.b64encode(f)
+                data['image'] = s
         data = json.dumps(data)
 
         mqtt.send(data)
