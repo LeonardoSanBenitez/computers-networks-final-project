@@ -143,16 +143,20 @@ class SelectionPolicyByObject (SelectionPolicy):
 
     def validate(self, img, verbose=0):
         assert type(img) != type(None), ('invalid image')
-        face_cascade = cv2.CascadeClassifier(self.path_model)
+        cascade_model = cv2.CascadeClassifier(self.path_model)
 
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        self._detections = cascade_model.detectMultiScale(gray, 1.3, 5)
         if verbose:
-            print(faces)
-        if len(faces) > 0:
+            print(self._detections)
+        if len(self._detections) > 0:
             return True
         else:
             return False
+        
+    def getDetections(self):
+        return self._detections
+
 
 
 class SelectionPolicyByMovement(SelectionPolicy):

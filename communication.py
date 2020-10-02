@@ -37,7 +37,6 @@ class LCD():
 
 import paho.mqtt.client as mqtt
 class MQTT():
-    #TODO: usar certificação e enviar para um broker privado; Ver exemplo em tests/manual_mqtt.py
     def _on_connect(self, userdata, flags, rc):
         '''
         The callback for when the client receives a CONNACK response from the server.
@@ -55,11 +54,18 @@ class MQTT():
         '''
         if self._verbose: print("[MQTT] Command received: "+msg.topic+" "+str(msg.payload))
         
-
-    def __init__(self, team, device, broker_domain='broker.hivemq.com', broker_port=1883, verbose=0):
+    def __init__(self, team, device, 
+                 auth_user=None, auth_pass=None, auth_cert=None, 
+                 broker_domain='broker.hivemq.com', broker_port=1883, 
+                 verbose=0):
         self._client = mqtt.Client()
         self._client.on_connect = self._on_connect
         self._client.on_message = self._on_message
+        if auth_user and auth_pass:
+            self._client.username_pw_set(auth_user, auth_pass)
+        if auth_cert:
+            self._client.tls_set(auth_cert)
+            self._client.tls_insecure_set(True)
         self._team = team
         self._device = device
         self._verbose = verbose

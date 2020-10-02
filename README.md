@@ -12,9 +12,9 @@ Frame:
 
 | Field    | Size | Description                                 |
 | -------- | ---- | ------------------------------------------- |
-| N_REQ    | 16   | sequencial ID of the request                |
-| PAYLOAD  | 8    | See list of commands below                  |
-| CHECKSUM | 8    | 8 bits checksum, $!(\sum \text{byte})\%256$ |
+| N_REQ    | 2    | sequencial ID of the request                |
+| PAYLOAD  | 1    | See list of commands below                  |
+| CHECKSUM | 1    | 8 bits checksum, $!(\sum \text{byte})\%256$ |
 
 List of commands:
 
@@ -28,8 +28,6 @@ List of commands:
 
 
 #  Enviroment configurations
-
-* Raspbian 9.11 stretch
 
 ## Local: Conda
 
@@ -53,6 +51,8 @@ List of commands:
 ```
 
 ## Embedded: venv
+
+* Raspbian 9.11 stretch
 
 * mainly just production
 
