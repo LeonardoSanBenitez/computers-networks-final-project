@@ -7,6 +7,7 @@ import concurrent.futures
 import json
 from tempfile import TemporaryFile
 import base64
+import io
 
 # AI modules
 import perception
@@ -15,7 +16,7 @@ import interaction
 import communication
 
 FLAGS = {
-    'exportLog': True,
+    'exportLog': False,
     'alwaysMemorable': True,
     'sendMqtt': True,
     'sendHttp': False,
@@ -36,8 +37,8 @@ if __name__ == "__main__":
                               #auth_pass='HKGvGSRSjC9B',
                               #auth_cert='comodorsacertificationauthority.crt',
                               auth_token='sQga6SL8ESsFvrbKbBkeLngDyflFHveXckV81w6vepYzE07FphKYvQrTUCnpYrd0',
-                              broker_domain='mqtt.flespi.io',#"tailor.cloudmqtt.com",
-                              broker_port=1883,#20641,
+                              broker_domain="mqtt.flespi.io",#'mqtt.flespi.io',#"tailor.cloudmqtt.com",
+                              broker_port=1883,#1883,#20641,
                               verbose=FLAGS['verbose'])
     #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
     executor = concurrent.futures.ThreadPoolExecutor()
@@ -67,20 +68,38 @@ if __name__ == "__main__":
                 'pressure': payload_bme['pressure'],
                 'humidity': payload_bme['humidity'],
                 'haveImage': memorable}
-        if FLAGS['verbose']: print('Sending... ' + json.dumps(data))#print without image, otherwise...
-        
-
-
-        if memorable:
-        #    data['image'] = payload_camera.tolist()
-            with TemporaryFile() as f:
-                np.save(f, payload_camera)
-                s = base64.b64encode(f)
-                data['image'] = s
+        #if FLAGS['verbose']: print('Sending... ' + json.dumps(data)) #print without image, otherwise...
         data = json.dumps(data)
-
-        mqtt.send(data)
+        mqtt.send_json(data)
         #http.send(data)
+
+
+        #fileName = 'assets/last_image.npy' #io.BytesIO()
+        #np.save(fileName, payload_camera)
+        #file = open(fileName, 'rb')
+        #content = file.read()
+        #file.close()
+
+        file = TemporaryFile()
+        np.save(file, payload_camera)
+        file.seek(0)
+        content = file.read()
+        file.close()
+
+        
+        #data['image'] = str(base64.b64encode(content))
+        #mqtt.send(base64.b64encode(content))
+        #mqtt.send(base64.b64encode(content))
+        mqtt.send_image(bytearray(content))
+         
+        #if memorable:
+        #    data['image'] = payload_camera.tolist()
+        #    with TemporaryFile() as f:
+        #        np.save(f, payload_camera)
+        #        mqtt.send(f.read())
+                #s = base64.b64encode(f.read())
+                #data['image'] = s
+
 
         # Save in SD card
         if FLAGS['exportLog']: 

@@ -74,9 +74,10 @@ class MQTT():
 
         self._client.connect(broker_domain, broker_port, 60)
 
-    def send(self, payload):
-        self._client.publish('redesIFSC/'+self._team+'/'+self._device, payload=payload)
-
+    def send_json(self, payload):
+        self._client.publish('redesIFSC/'+self._team+'/'+self._device+'/json', payload=payload)
+    def send_image(self, payload):
+        self._client.publish('redesIFSC/'+self._team+'/'+self._device+'/image', payload=payload)
 import requests
 class HTTP():
     def __init__(self, serverURL, verbose=0):
