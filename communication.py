@@ -55,7 +55,7 @@ class MQTT():
         if self._verbose: print("[MQTT] Command received: "+msg.topic+" "+str(msg.payload))
         
     def __init__(self, team, device, 
-                 auth_user=None, auth_pass=None, auth_cert=None, 
+                 auth_user=None, auth_pass=None, auth_cert=None, auth_token=None,
                  broker_domain='broker.hivemq.com', broker_port=1883, 
                  verbose=0):
         self._client = mqtt.Client()
@@ -63,6 +63,8 @@ class MQTT():
         self._client.on_message = self._on_message
         if auth_user and auth_pass:
             self._client.username_pw_set(auth_user, auth_pass)
+        if auth_token:
+            self._client.username_pw_set(auth_token)
         if auth_cert:
             self._client.tls_set(auth_cert)
             self._client.tls_insecure_set(True)

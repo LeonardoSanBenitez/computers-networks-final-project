@@ -21,6 +21,7 @@ class MotorUART(Motor):
     '''
     @Brief: send to MSP430 via UART
     TODO
+    variável de controle: tempo (poderia ser a velocidade, mas eu resolvi simplificar)
     '''
 
     def __init__(self):
