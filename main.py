@@ -33,7 +33,7 @@ if __name__ == "__main__":
                               auth_user='crojvinz',
                               auth_pass='HKGvGSRSjC9B',
                               auth_cert='comodorsacertificationauthority.crt',
-                              broker_domain="soldier.cloudmqtt.com",
+                              broker_domain="tailor.cloudmqtt.com",
                               broker_port=20641,
                               verbose=FLAGS['verbose'])
     #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
@@ -64,11 +64,11 @@ if __name__ == "__main__":
                 'pressure': payload_bme['pressure'],
                 'humidity': payload_bme['humidity'],
                 'haveImage': memorable}
+        if FLAGS['verbose']: print('Sending... ' + data)#print without image, otherwise...
         if memorable:
             data['image'] = payload_camera.tolist()
         data = json.dumps(data)
 
-        if FLAGS['verbose']: print('Sending... ' + data)
         mqtt.send(data)
         #http.send(data)
 

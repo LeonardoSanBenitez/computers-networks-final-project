@@ -45,7 +45,7 @@ class MQTT():
 
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        self._client.subscribe('redesIFSC/'+self._team+'/'+self._device)
+        #self._client.subscribe('redesIFSC/'+self._team+'/'+self._device)
 
 
     def _on_message(self, userdata, msg):
@@ -95,10 +95,10 @@ class HTTP():
 
 import RPi.GPIO as GPIO
 class LED():
-    def __init__(self, pin=36):
+    def __init__(self, pin=16):
         self._pin = pin
         self._is_on = False
-        GPIO.setmode(GPIO.BOARD)
+        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self._pin, GPIO.OUT, initial=GPIO.HIGH)
         
     def toggle(self):
