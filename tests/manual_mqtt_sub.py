@@ -1,4 +1,6 @@
 import paho.mqtt.client as mqtt
+import json
+import base64
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -10,7 +12,10 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    #payload = json.loads(msg.payload)
+    #image_base64 = base64.decodebytes(payload['image'])
+    #print('received', len(payload))
+    print(msg.topic)#+" "+str(msg.payload))
 
 
 client = mqtt.Client()

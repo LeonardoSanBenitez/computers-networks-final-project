@@ -56,12 +56,14 @@ if __name__ == "__main__":
         memorable_object = policy.validate(payload_camera)
         memorable = memorable_object or FLAGS['alwaysMemorable']
         if memorable:
-            #TODO
+            # TODO
             # policy.getDetections()
-            # compare with image center
-            # propotional control
+            # compare with image center: 
+            #   error = (x_center - x_dog)
+            #   control_sinal = error*C
+            # variável de controle é o tempo (poderia ser a velocidade, mas eu resolvi simplificar)
             # send UART
-            pass
+            motor.send(motor.test_command())
 
         # Send to server
         data = {'temperature': payload_bme['temperature'],

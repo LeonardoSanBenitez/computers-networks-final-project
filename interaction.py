@@ -1,6 +1,7 @@
+import serial
 class Motor():
     def __init__(self):
-        pass
+        raise Exception('not implemented')
 
     def move(self, speed):
         '''
@@ -16,45 +17,43 @@ class Motor():
         '''
         pass
 
-
+import serial
 class MotorUART(Motor):
     '''
     @Brief: send to MSP430 via UART
-    TODO
-    variável de controle: tempo (poderia ser a velocidade, mas eu resolvi simplificar)
     '''
 
-    def __init__(self):
-        pass
+    def __init__(self, debug=True):
+        self._seq=0
+        self._serial = serial.Serial("/dev/ttyS0", 115200, 
+                                    parity=serial.PARITY_NONE,
+                                    stopbits=serial.STOPBITS_ONE, 
+                                    bytesize=serial.EIGHTBITS)
+        if debug:
+            import itertools 
+            def test_gen():
+                for i in itertools.cycle([0x80,0x81,0x82,0x83,0x84,0x00]): 
+                    yield i
+            self._gen = test_gen()
 
-    def move(self, speed):
-        if speed > 0:
-            pass
-            # PWM1_DIR = foward
-            # PWM1=speed
+    def test_command(self):
+        '''
+        Return a valid command, iterating sequetially through all possible commands
+        '''
+        return next(self._gen)
 
-            # PWM2_DIR = foward
-            # PWM2=speed
-        elif speed < 0:
-            pass
-            # PWM1_DIR = backward
-            # PWM1=speed
+    def send(self, command):
+        '''
+        Receives the hexadecimal command
+        If read operation, return the value
+        '''
+        checksum = ((self._seq + command) % 255)
+        seq_low = self._seq.to_bytes(1, 'big')
+        seq_high = (self._seq >> 8).to_bytes(1, 'big')
+        command = command.to_bytes(1, 'big')
+        checksum = checksum.to_bytes(1, 'big')
+        self._seq += 1
+        self._serial.write(seq_high + seq_low + command + checksum)
+        if command==b'\x00':
+            return self._serial.read(1)
 
-            # PWM2_DIR = backward
-            # PWM2=speed
-        else:
-            pass
-            # PWM1=0
-            # PWM2=0
-
-    def turn(self, angle):
-        if angle > 0:
-            pass  # PWM1_DIR = foward
-            # PWM1=255
-            # PWM2_DIR = backward
-            # PWM2=255
-            # wait xxx time (heuristic)
-            # PWM1=0
-            # PWM2=0
-        elif angle < 0:
-            pass
