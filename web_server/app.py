@@ -24,15 +24,14 @@ def telemetry_page():
 @app.route('/telemetry/measures', methods=['POST'])
 def telemetry_measure():
   
-  
+  with open('./data/telemetry.json') as f:
+    
+    measures = json.load(f)
 
-  measures = {
-    "temperature": 23.4,
-    "pressure": 232.2,
-    "humidity": 432.22
-  }
+    if "temperature" and "pressure" and "humidity" in measures:
+      return json.dumps(measures)
 
-  return json.dumps(measures)
+  return json.dumps('{}')
 
 @app.route('/receive/', methods=['POST'])
 def receive():

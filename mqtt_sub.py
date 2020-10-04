@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import json
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -10,8 +11,27 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    # print(msg.topic+" "+str(msg.payload))
+    print(f"received in topic: {msg.topic}")
 
+    subtopic = msg.topic.split('/')[-1]
+
+    # telemetry data
+    if subtopic == 'json':
+        with open("./web_server/data/telemetry.json", "w") as file:
+            telemetry = json.loads(str(msg.payload, 'utf-8'))
+            if 'haveImage' in telemetry:
+                del telemetry['haveImage'] 
+
+            file.write(json.dumps(telemetry))
+    
+
+    # image data
+    elif subtopic == 'image':
+        print("")
+    
+    else:
+        print("Invalid topic")
 
 client = mqtt.Client()
 client.on_connect = on_connect

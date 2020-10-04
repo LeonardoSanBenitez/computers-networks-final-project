@@ -12,8 +12,9 @@ function updateMeasures() {
     .then(json => {
         console.log(json);
         
-        document.getElementById('temperature').innerHTML = json.temperature;
-        document.getElementById('pressure').innerHTML    = json.pressure;
+        // TODO: specify the measures units 
+        document.getElementById('temperature').innerHTML = json.temperature + " ºC";
+        document.getElementById('pressure').innerHTML    = json.pressure + " p";
         document.getElementById('humidity').innerHTML    = json.humidity;
 
     });
