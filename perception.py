@@ -247,7 +247,7 @@ class Sensor_Bme280 (Sensor):
 
 
 class Camera ():
-    def __init__(self, imgWidht=800, imgHeight=800):
+    def __init__(self, imgWidht=320, imgHeight=320):
         self.imgWidht = imgWidht
         self.imgHeight = imgHeight
         self.camera = PiCamera()
@@ -257,7 +257,7 @@ class Camera ():
         time.sleep(5)
         self.camera.start_preview()
 
-    def captureFrame(self, verbose=True):
+    def captureFrame(self, verbose=False):
         if verbose:
             print("begin readCamera...", end='')
         image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)

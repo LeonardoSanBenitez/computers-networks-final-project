@@ -91,12 +91,12 @@ class SelectionPolicyByShape (SelectionPolicy):
             n += 1
         return img_labels
 
-    def validate(self, image):
+    def validate(self, image, verbose=0):
         self._processImg(image, thresh_value=110)
 
         # Take the biggest shape only
         shape, area = self._shapeBiggest()
-        print('Found shape ', shape, 'of size ', area)
+        if verbose: print('Found shape ', shape, 'of size ', area)
         if (shape != None):  # and area>areaThresh) #TODO: area threshold
             return True
         else:

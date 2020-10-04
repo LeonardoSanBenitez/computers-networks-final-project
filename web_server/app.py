@@ -17,6 +17,22 @@ def home():
   print(f"Segmented model saved", file=sys.stdout)
   return render_template('home.html')
 
+@app.route('/telemetry')
+def telemetry_page():
+  return render_template('telemetry.html')
+
+@app.route('/telemetry/measures', methods=['POST'])
+def telemetry_measure():
+  
+  with open('./data/telemetry.json') as f:
+    
+    measures = json.load(f)
+
+    if "temperature" and "pressure" and "humidity" in measures:
+      return json.dumps(measures)
+
+  return json.dumps('{}')
+
 @app.route('/receive/', methods=['POST'])
 def receive():
   print('request received')

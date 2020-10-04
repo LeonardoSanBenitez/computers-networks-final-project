@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="row card-board">
+    <!-- Temperature -->
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="m-0">Temperature</h5>
+        </div>
+        <div class="card-body" id="temperature">
+          <!-- value -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Pressure -->
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="m-0">Pressure</h5>
+        </div>
+        <div class="card-body" id="pressure">
+          <!-- value -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Humidity -->
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="m-0">Humidity</h5>
+        </div>
+        <div class="card-body" id="humidity">
+          <!-- value -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+
+  <script src="{{ url_for('static', filename='js/telemetry.js') }}"></script>
+
+{% endblock %}
