@@ -11,13 +11,13 @@
 volatile uint16_t count = 0;
 volatile uint8_t frequency = 1; //in MHz
 
-void delay_ms_init(f){
+void delay_ms_init(uint8_t f){
     frequency = f;
     WDTCTL = WDT_MDLY_32;                   // WDT 32ms (default, at F=1MHz), SMCLK, interval timer
     __bis_SR_register(GIE);
 }
 
-void delay_ms(int time){
+void delay_ms(uint16_t time){
     count = frequency*time/32;
 
     SFRIE1 |= WDTIE;                        // Enable WDT interrupt

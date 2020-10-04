@@ -8,7 +8,7 @@
 #define LIB_DELAY_H
 
 #include <stdint.h>
-void delay_ms_init();
-void delay_ms(int time);
+void delay_ms_init(uint8_t f);
+void delay_ms(uint16_t time);
 
 #endif

@@ -1,20 +1,33 @@
-//***************************************************************************************
-//  MSP part of the project
-//  Author: Leonardo Benitez
-//  Coauthor: Renan Augusto Starke
-//  Date: 2020-10
-//***************************************************************************************
+/***************************************************************************************
+ *  MSP part of the project
+ *  Author: Leonardo Benitez
+ *  Coauthor: Renan Augusto Starke
+ *  Date: 2020-10
+ *  Hardware usage:
+ *    Watchdog timer: delay
+ *    Timer0_B0:      battery
+ *    Timer1_B1:      ultrassonic
+ *    Timer3_B:       motor
+ *    EUSCI:          uart
+
+ *    ADC: battery
+
+****************************************************************************************/
 
 
 /* System includes */
-#include "lib/bits.h"
-#include "lib/gpio.h"
-#include <lib/uart_fr2355.h>
+
 #include <msp430.h>
 #include <stdint.h>
+#include "lib/bits.h"
+#include "lib/gpio.h"
+#include "lib/uart_fr2355.h"
+//#include "lib/delay_wdt.h"
+#include "boardDefinitions/MSP430FR2355.h"
 #include "motor_control/motor_control.h"
 #include "sensor_ultrassonic/sensor_ultrassonic.h"
-#include "boardDefinitions/MSP430FR2355.h"
+//#include "battery_monitoring/battery_monitoring.h"
+
 
 /* Project includes */
 #include "lib/bits.h"
@@ -67,8 +80,14 @@ void collision_callback(){
     CPL_BIT(PORT_OUT(LED2_PORT), LED2_BIT); // Pisca LED
     //TODO: collision avoidance proceadure
     // turn left
-    // wait 3 seconds
+    // wait 3 seconds (operação demorada dentro da interrupção????)
+    // delay_ms(3000);
     // go forth
+    sensor_ultrassonic_trigger();
+}
+
+void battery_death_callback(){
+    //TODO: return 0?
 }
 
 volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
@@ -81,11 +100,13 @@ int main(){
 
     /* Initializations */
     init_clock_24MHz();
-    motor_control_init(24);
+    //delay_ms_init(24);
     sensor_ultrassonic_init(24, &collision_callback);
+    motor_control_init(24);
     init_uart();
+    //battery_monitoring_init(24, &battery_death_callback);
 
-    /* LedS de depuração */
+    /* Leds de depuração */
     SET_BIT(PORT_DIR(LED1_PORT), LED1_BIT);
     SET_BIT(PORT_DIR(LED2_PORT), LED2_BIT);
 
