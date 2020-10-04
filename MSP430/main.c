@@ -13,6 +13,7 @@
 #include <msp430.h>
 #include <stdint.h>
 #include "motor_control/motor_control.h"
+#include "sensor_ultrassonic/sensor_ultrassonic.h"
 
 /* Project includes */
 #include "lib/bits.h"
@@ -64,7 +65,7 @@ void init_clock_24MHz(void) {
 
 
 volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
-
+volatile uint16_t distance;
 int main(){
     char my_data[8];
 
@@ -74,6 +75,7 @@ int main(){
     /* Initializations */
     init_clock_24MHz();
     motor_control_init(24);
+    sensor_ultrassonic_init(24);
     init_uart();
 
     /* Led de depuração */
@@ -89,7 +91,6 @@ int main(){
         /* Echo */
         //uart_send_package((uint8_t *)my_data[2], 2);
         //__bis_SR_register(CPUOFF | GIE);
-
 
         if (my_data[3] == (my_data[0]+my_data[1]+my_data[2])%256){
             // Checksum is right
