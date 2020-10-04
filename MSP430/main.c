@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "motor_control/motor_control.h"
 #include "sensor_ultrassonic/sensor_ultrassonic.h"
+#include "boardDefinitions/MSP430FR2355.h"
 
 /* Project includes */
 #include "lib/bits.h"
@@ -62,7 +63,13 @@ void init_clock_24MHz(void) {
     CSCTL4 = SELMS__DCOCLKDIV | SELA__REFOCLK;
 }
 
-
+void collision_callback(){
+    CPL_BIT(PORT_OUT(LED2_PORT), LED2_BIT); // Pisca LED
+    //TODO: collision avoidance proceadure
+    // turn left
+    // wait 3 seconds
+    // go forth
+}
 
 volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
 volatile uint16_t distance;
@@ -75,18 +82,20 @@ int main(){
     /* Initializations */
     init_clock_24MHz();
     motor_control_init(24);
-    sensor_ultrassonic_init(24);
+    sensor_ultrassonic_init(24, &collision_callback);
     init_uart();
 
-    /* Led de depuração */
-    P1DIR |= BIT0;
+    /* LedS de depuração */
+    SET_BIT(PORT_DIR(LED1_PORT), LED1_BIT);
+    SET_BIT(PORT_DIR(LED2_PORT), LED2_BIT);
 
     __bis_SR_register(GIE);
     while (1){
         /* Configura o recebimento de um pacote de 4 bytes */
         uart_receive_package((uint8_t *)my_data, 4);
         __bis_SR_register(CPUOFF | GIE); // Desliga a CPU enquanto pacote não chega
-        CPL_BIT(P1OUT,BIT0); // Pisca LED
+        CPL_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // Pisca LED
+
 
         /* Echo */
         //uart_send_package((uint8_t *)my_data[2], 2);
