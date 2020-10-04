@@ -21,7 +21,7 @@ FLAGS = {
     'sendMqtt': True,
     'sendHttp': False,
     'path_out': 'assets/',
-    'verbose': 1
+    'verbose': 0
 }
 
 if __name__ == "__main__":
@@ -48,11 +48,10 @@ if __name__ == "__main__":
     while(1):
         future_bme = executor.submit(bme280.readBME280All)
         future_camera = executor.submit(camera.captureFrame)
-        concurrent.futures.wait([future_bme, future_camera], timeout=5)
+        concurrent.futures.wait([future_bme, future_camera], timeout=30)
         
         payload_bme = future_bme.result()
         payload_camera = future_camera.result()
-
         memorable_object = policy.validate(payload_camera)
         memorable = memorable_object or FLAGS['alwaysMemorable']
         if memorable:
@@ -68,17 +67,9 @@ if __name__ == "__main__":
                 'pressure': payload_bme['pressure'],
                 'humidity': payload_bme['humidity'],
                 'haveImage': memorable}
-        #if FLAGS['verbose']: print('Sending... ' + json.dumps(data)) #print without image, otherwise...
+        if FLAGS['verbose']: print('Sending... ' + json.dumps(data))
         data = json.dumps(data)
         mqtt.send_json(data)
-        #http.send(data)
-
-
-        #fileName = 'assets/last_image.npy' #io.BytesIO()
-        #np.save(fileName, payload_camera)
-        #file = open(fileName, 'rb')
-        #content = file.read()
-        #file.close()
 
         file = TemporaryFile()
         np.save(file, payload_camera)
@@ -86,21 +77,10 @@ if __name__ == "__main__":
         content = file.read()
         file.close()
 
-        
         #data['image'] = str(base64.b64encode(content))
-        #mqtt.send(base64.b64encode(content))
-        #mqtt.send(base64.b64encode(content))
-        mqtt.send_image(bytearray(content))
+        #mqtt.send_image(base64.b64encode(content))
+        #mqtt.send_image(bytearray(content))
          
-        #if memorable:
-        #    data['image'] = payload_camera.tolist()
-        #    with TemporaryFile() as f:
-        #        np.save(f, payload_camera)
-        #        mqtt.send(f.read())
-                #s = base64.b64encode(f.read())
-                #data['image'] = s
-
-
         # Save in SD card
         if FLAGS['exportLog']: 
             cv2.imwrite(FLAGS['path_out'] + 'img' + str(i) + '.jpg', payload_camera)
