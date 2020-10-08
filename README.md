@@ -82,10 +82,32 @@ List of commands:
      pip3 install smbus
     ```
 
-* **Run as tasks in background**
+* **Run project**
 
-  * sudo python3 continuous_read_bme280.py &
-  * python3 continuous_capture_image.py &
-  * sudo python3 continuous_print_lcd.py &
+  * `python3 main.py`
 
-## Cloud: ?
+  * or in background, `nohup python3 main.py &`
+
+## Cloud: AWS
+
+* Log in intro instance
+
+* Install git, docker, docker-compose
+
+* The mqtt subscribe script is running outside the container, so you also have to install pip and paho
+
+```
+sudo apt install python3-pip
+pip3 install paho-mqtt
+```
+
+* Run forever:
+
+```
+nohup python3 mqtt_sub.py &
+cd web_server 
+docker-compose build
+docker-compose up -d
+```
+
+* Right now it's running on 107.21.56.72

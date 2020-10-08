@@ -5,6 +5,7 @@
  *
  *  Read two ultrassonic sensors HCSR04
  *  Timer em modo captura.
+ *  Para evitar problemas de sincronização, o ideal seria triggar por um timer
  *  Pinout:
  *    MSP Pin      Signal
  *    P2.0/TB1.1   Echo0 (needs 5V->3.3V conversion)
@@ -18,7 +19,7 @@
 
 #include "sensor_ultrassonic.h"
 
-#define COLLISION_THRESHOLD 20000
+#define COLLISION_THRESHOLD 5000
 /* Conversion to mm
  * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm
  * 20k = 142mm
@@ -67,8 +68,9 @@ void sensor_ultrassonic_trigger(){
                                                     // Synchronous capture,
                                                     // Enable capture mode,
                                                     // Enable capture interrupt
+	                                                // Enable overflow interrupt
 
-    TB1CTL |= TBSSEL_2 | MC_2 | TBCLR;              // Use SMCLK as clock source, clear TB1R
+    TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;      // Use SMCLK as clock source, clear TB1R, prescaller 4x
 
 
     // kept Trigger high for 10us
@@ -127,6 +129,13 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
 
         /* Vector 10:  TBIFG -> Overflow do timer 0*/
         case TB1IV_TBIFG:
+            //TODO: nunca entra aqui
+            CCR1_state = 2;
+            CCR2_state = 2;
+            CCR1_countB = 65535;
+            CCR1_countA = 0;
+            CCR2_countB = 65535;
+            CCR2_countA = 0;
             break;
         default:
             break;

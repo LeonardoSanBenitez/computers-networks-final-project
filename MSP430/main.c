@@ -9,7 +9,6 @@
  *    Timer1_B1:      ultrassonic
  *    Timer3_B:       motor
  *    EUSCI:          uart
-
  *    ADC: battery
 
 ****************************************************************************************/
@@ -22,11 +21,11 @@
 #include "lib/bits.h"
 #include "lib/gpio.h"
 #include "lib/uart_fr2355.h"
-//#include "lib/delay_wdt.h"
+#include "lib/delay_wdt.h"
 #include "boardDefinitions/MSP430FR2355.h"
 #include "motor_control/motor_control.h"
 #include "sensor_ultrassonic/sensor_ultrassonic.h"
-//#include "battery_monitoring/battery_monitoring.h"
+#include "battery_monitoring/battery_monitoring.h"
 
 
 /* Project includes */
@@ -77,7 +76,7 @@ void init_clock_24MHz(void) {
 }
 
 void collision_callback(){
-    CPL_BIT(PORT_OUT(LED2_PORT), LED2_BIT); // Pisca LED
+    CPL_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // Pisca LED
     //TODO: collision avoidance proceadure
     // turn left
     // wait 3 seconds (operação demorada dentro da interrupção????)
@@ -87,7 +86,10 @@ void collision_callback(){
 }
 
 void battery_death_callback(){
-    //TODO: return 0?
+    //TODO: kill program? Raise exception?
+    // desligar motor
+    // desligar o resto
+    // preferencialmente, desligar o raspberry
 }
 
 volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
@@ -100,23 +102,20 @@ int main(){
 
     /* Initializations */
     init_clock_24MHz();
-    //delay_ms_init(24);
+    delay_ms_init(24);
     sensor_ultrassonic_init(24, &collision_callback);
     motor_control_init(24);
     init_uart();
-    //battery_monitoring_init(24, &battery_death_callback);
+    battery_monitoring_init(24, &battery_death_callback);
 
     /* Leds de depuração */
     SET_BIT(PORT_DIR(LED1_PORT), LED1_BIT);
-    SET_BIT(PORT_DIR(LED2_PORT), LED2_BIT);
 
     __bis_SR_register(GIE);
     while (1){
         /* Configura o recebimento de um pacote de 4 bytes */
         uart_receive_package((uint8_t *)my_data, 4);
         __bis_SR_register(CPUOFF | GIE); // Desliga a CPU enquanto pacote não chega
-        CPL_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // Pisca LED
-
 
         /* Echo */
         //uart_send_package((uint8_t *)my_data[2], 2);

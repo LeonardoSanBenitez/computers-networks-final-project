@@ -11,9 +11,6 @@
 #include <msp430.h>
 #include <stdint.h>
 
-volatile unsigned int ADC_Result[3];             // 12-bit ADC conversion result array
-volatile unsigned char i;
-
 //@Brief: initializations
 //@Hardware: timer B0, ADC
 //@Parameter f: frequency
