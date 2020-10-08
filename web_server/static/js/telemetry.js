@@ -20,4 +20,4 @@ function updateMeasures() {
 }
 
 updateMeasures();
-setInterval(updateMeasures, 1000 * 5); // in miliseconds
+setInterval(updateMeasures, 1000 * 2); // in miliseconds
