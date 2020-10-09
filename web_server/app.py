@@ -12,9 +12,8 @@ flags={'segment':False}
 
 @app.route('/')
 def home():
-  #os.system('sshpass -p "123456" scp pi@raspberrypi.local:/home/pi/computers-networks-final-project/assets/last_image.jpg /home/benitez/Desktop/barn-dashboard/assets/')
   if flags['segment']: instance_segmentation.predict()
-  print(f"Segmented model saved", file=sys.stdout)
+  print(f"Segmented image saved", file=sys.stdout)
   return render_template('home.html')
 
 @app.route('/telemetry')

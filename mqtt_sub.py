@@ -12,7 +12,8 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     # print(msg.topic+" "+str(msg.payload))
-    print(f"received in topic: {msg.topic}")
+    # print(f"received in topic: {msg.topic}")
+    print(f"{msg.topic}: {msg.payload}")
 
     subtopic = msg.topic.split('/')[-1]
 
@@ -37,10 +38,10 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
+client.tls_set('comodorsacertificationauthority.crt')
+client.username_pw_set('crojvinz', 'HKGvGSRSjC9B')
 
-client.username_pw_set('sQga6SL8ESsFvrbKbBkeLngDyflFHveXckV81w6vepYzE07FphKYvQrTUCnpYrd0')
-
-client.connect("mqtt.flespi.io", 1883, 60)
+client.connect("tailor.cloudmqtt.com", 20641, 60)
 
 
 # Blocking call that processes network traffic, dispatches callbacks and

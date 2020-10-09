@@ -7,3 +7,4 @@ assets/
 nohup.out
 __pycache__/
 */__pycache__/
+web_server/data/telemetry.json

@@ -5,6 +5,7 @@
  *
  *  Read two ultrassonic sensors HCSR04
  *  Timer em modo captura.
+ *  Para evitar problemas de sincronização, o ideal seria triggar por um timer
  *  Pinout:
  *    MSP Pin      Signal
  *    P2.0/TB1.1   Echo0 (needs 5V->3.3V conversion)
@@ -20,7 +21,7 @@
 
 #define COLLISION_THRESHOLD 20000
 /* Conversion to mm
- * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm
+ * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm (without prescaller)
  * 20k = 142mm
  */
 
@@ -40,8 +41,6 @@ volatile uint8_t CCR2_state = 0;
 void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	_f = f;
 	_collision_callback = collision_callback;
-
-	//TODO: configure prescaller, 4~8  times the distance
 
 	CLR_BIT(P2DIR, BIT0 | BIT1); // input
 	SET_BIT(P2REN, BIT0 | BIT1); // pull enable
@@ -67,8 +66,9 @@ void sensor_ultrassonic_trigger(){
                                                     // Synchronous capture,
                                                     // Enable capture mode,
                                                     // Enable capture interrupt
+	                                                // Enable overflow interrupt
 
-    TB1CTL |= TBSSEL_2 | MC_2 | TBCLR;              // Use SMCLK as clock source, clear TB1R
+    TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;      // Use SMCLK as clock source, clear TB1R, prescaller 4x
 
 
     // kept Trigger high for 10us
@@ -80,10 +80,13 @@ void sensor_ultrassonic_trigger(){
 }
 
 uint8_t sensor_ultrassonic_collision_policy(){
-    if (((CCR1_countB - CCR1_countA) < COLLISION_THRESHOLD ) || ((CCR2_countB - CCR2_countA) < COLLISION_THRESHOLD))
+    if (((CCR1_countB - CCR1_countA) < COLLISION_THRESHOLD ) || ((CCR2_countB - CCR2_countA) < COLLISION_THRESHOLD)){
+        SET_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
         return 1;
-    else
+    } else{
+        CLR_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
         return 0;
+    }
 }
 
 // Timer1 Interrupt Handler
@@ -127,6 +130,13 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
 
         /* Vector 10:  TBIFG -> Overflow do timer 0*/
         case TB1IV_TBIFG:
+            //TODO: nunca entra aqui
+            CCR1_state = 2;
+            CCR2_state = 2;
+            CCR1_countB = 65535;
+            CCR1_countA = 0;
+            CCR2_countB = 65535;
+            CCR2_countA = 0;
             break;
         default:
             break;
