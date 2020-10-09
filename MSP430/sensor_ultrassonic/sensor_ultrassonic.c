@@ -56,31 +56,6 @@ void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	SFRIE1 |= WDTIE;                        // Enable WDT interrupt
 }
 
-
-void sensor_ultrassonic_trigger(){
-    // Echo goes high for a period of time which will be equal to the time taken for the US wave to return back to the sensor
-    // Enable Timer
-    TB1CCTL1 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
-    TB1CCTL2 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
-                                                    // Capture in both rising and falling edge,
-                                                    // Use CCI0A,
-                                                    // Synchronous capture,
-                                                    // Enable capture mode,
-                                                    // Enable capture interrupt
-                                                    // Enable overflow interrupt
-
-    TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;      // Use SMCLK as clock source, clear TB1R, prescaller 4x
-    timer_busy = 1;
-
-    // kept Trigger high for 10us
-    int count = 0;
-    int max = _f*10;
-    SET_BIT(P2OUT, BIT2 | BIT4);
-    while (count<=max){count++;}
-    CLR_BIT(P2OUT, BIT2 | BIT4);
-}
-
-
 // Timer1 Interrupt Handler
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = TIMER1_B1_VECTOR
@@ -138,15 +113,15 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
 
         CLR_BIT(TB1CCTL1, CCIE);
         CLR_BIT(TB1CCTL2, CCIE);
-        CLR_BIT(TB1CTL, TBIE);
+        CLR_BIT(TB1CTL, TBIE | CCIE);
 
         CCR1_sum += CCR1_countB - CCR1_countA;
         CCR2_sum += CCR2_countB - CCR2_countA;
         measure_count++;
 
         measure_count++;
-        if (measure_count>=8){
-            last_value = CCR1_sum>>3; //for debug
+        if (measure_count>=16){
+            last_value = CCR1_sum>>4; //for debug
 
             //check for collision
             if (((CCR1_sum>>3) < COLLISION_THRESHOLD ) || ((CCR2_sum>>3) < COLLISION_THRESHOLD)){
@@ -160,7 +135,6 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
             CCR2_sum = 0;
         }
         timer_busy = 0;
-        //sensor_ultrassonic_trigger();
 
         /*
         CLR_BIT(TB1CCTL1, CCIE);
@@ -213,15 +187,12 @@ void __attribute__((interrupt(WDT_VECTOR))) watchdog_timer(void)
 {
 
     if (!timer_busy){
-        sensor_ultrassonic_trigger();
-        //sensor_ultrassonic_trigger();
-        /*
+
+
         // Echo goes high for a period of time which will be equal to the time taken for the US wave to return back to the sensor
         // Enable Timer
-        //TODO:
-        //  mover o delay para o CCR0
-        //  configurar só no init (e limpar com o TBCLR)
-        //  méida móvel da leitura
+        TB1CCR0 = _f*10;
+        TB1CCTL0 |= CCIE;
         TB1CCTL1 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
         TB1CCTL2 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
                                                         // Capture in both rising and falling edge,
@@ -231,16 +202,27 @@ void __attribute__((interrupt(WDT_VECTOR))) watchdog_timer(void)
                                                         // Enable capture interrupt
                                                         // Enable overflow interrupt
 
-        TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;      // Use SMCLK as clock source, clear TB1R, prescaller 4x
-
-
-        // kept Trigger high for 10us
-        int count = 0;
-        int max = _f*10;
+        TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;
+                                                        // Use SMCLK as clock source
+                                                        // clear TB1R
+                                                        // TBCCR0 interrupt enabled
+                                                        // prescaller 4x
         SET_BIT(P2OUT, BIT2 | BIT4);
-        while (count<=max){count++;}
-        CLR_BIT(P2OUT, BIT2 | BIT4);*/
+        timer_busy = 1;
     }
+}
+
+// Timer B1 interrupt service routine
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector = TIMER1_B0_VECTOR
+__interrupt void Timer1_B0_ISR(void)
+#elif defined(__GNUC__)
+void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) Timer1_B0_ISR (void)
+#else
+#error Compiler not supported!
+#endif
+{
+    CLR_BIT(P2OUT, BIT2 | BIT4);
 }
 
 

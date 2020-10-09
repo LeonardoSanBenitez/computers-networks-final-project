@@ -25,7 +25,6 @@ void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)());
 uint16_t sensor_ultrassonic_last_value();
 
 
-void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)());
-void sensor_ultrassonic_trigger();
+//void sensor_ultrassonic_trigger();
 
 #endif /* SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_ */
