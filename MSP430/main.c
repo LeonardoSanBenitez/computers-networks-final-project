@@ -35,6 +35,8 @@
 #error "Clock system not supported/tested for this device"
 #endif
 
+volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
+volatile uint16_t distance;
 
 /**
   * @brief  Configura sistema de clock para usar o Digitally Controlled Oscillator (DCO) em 24MHz
@@ -76,12 +78,9 @@ void init_clock_24MHz(void) {
 }
 
 void collision_callback(){
-    CPL_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // Pisca LED
-    //TODO: collision avoidance proceadure
-    // turn left
-    // wait 3 seconds (operação demorada dentro da interrupção????)
-    // delay_ms(3000);
-    // go forth
+    //TODO: after stop, start collision avoidance proceadure in raspberry
+    motor_state = MOTOR_STATE_STOP;
+    motor_control_set_params(1, 0, 1, 0);
     sensor_ultrassonic_trigger();
 }
 
@@ -92,8 +91,6 @@ void battery_death_callback(){
     // preferencialmente, desligar o raspberry
 }
 
-volatile enum motor_state_t motor_state = MOTOR_STATE_STOP;
-volatile uint16_t distance;
 int main(){
     char my_data[8];
 
@@ -147,7 +144,7 @@ int main(){
             else if ((my_data[2]>>4)==0x00){
                 // Received a read request
                 if (my_data[2]==0x00){
-                    uart_send_package((uint8_t *)motor_state,sizeof(motor_state));
+                    uart_send_package((uint8_t *)&motor_state,sizeof(motor_state));
                     __bis_SR_register(CPUOFF | GIE);
                 }
             }

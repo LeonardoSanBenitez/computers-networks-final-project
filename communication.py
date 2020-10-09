@@ -78,6 +78,7 @@ class MQTT():
         self._client.publish('redesIFSC/'+self._team+'/'+self._device+'/json', payload=payload)
     def send_image(self, payload):
         self._client.publish('redesIFSC/'+self._team+'/'+self._device+'/image', payload=payload)
+
 import requests
 class HTTP():
     def __init__(self, serverURL, verbose=0):

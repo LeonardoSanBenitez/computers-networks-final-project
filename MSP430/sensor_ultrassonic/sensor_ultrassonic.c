@@ -19,9 +19,9 @@
 
 #include "sensor_ultrassonic.h"
 
-#define COLLISION_THRESHOLD 5000
+#define COLLISION_THRESHOLD 20000
 /* Conversion to mm
- * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm
+ * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm (without prescaller)
  * 20k = 142mm
  */
 
@@ -41,8 +41,6 @@ volatile uint8_t CCR2_state = 0;
 void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	_f = f;
 	_collision_callback = collision_callback;
-
-	//TODO: configure prescaller, 4~8  times the distance
 
 	CLR_BIT(P2DIR, BIT0 | BIT1); // input
 	SET_BIT(P2REN, BIT0 | BIT1); // pull enable
@@ -82,10 +80,13 @@ void sensor_ultrassonic_trigger(){
 }
 
 uint8_t sensor_ultrassonic_collision_policy(){
-    if (((CCR1_countB - CCR1_countA) < COLLISION_THRESHOLD ) || ((CCR2_countB - CCR2_countA) < COLLISION_THRESHOLD))
+    if (((CCR1_countB - CCR1_countA) < COLLISION_THRESHOLD ) || ((CCR2_countB - CCR2_countA) < COLLISION_THRESHOLD)){
+        SET_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
         return 1;
-    else
+    } else{
+        CLR_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
         return 0;
+    }
 }
 
 // Timer1 Interrupt Handler

@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <stdint.h>
 #include "lib/bits.h"
+#include "lib/gpio.h"
+#include "boardDefinitions/MSP430FR2355.h"
 
 void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)());
 void sensor_ultrassonic_trigger();
