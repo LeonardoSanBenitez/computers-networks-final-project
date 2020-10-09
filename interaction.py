@@ -36,24 +36,27 @@ class MotorUART(Motor):
                     yield i
             self._gen = test_gen()
 
-    def test_command(self):
+    def test_command(self, verbose=0):
         '''
         Return a valid command, iterating sequetially through all possible commands
         '''
-        return next(self._gen)
+        n = next(self._gen)
+        if verbose: print('Send command', n)
+        return n
 
     def send(self, command):
         '''
         Receives the hexadecimal command
         If read operation, return the value
         '''
-        checksum = ((self._seq + command) % 255)
-        seq_low = self._seq.to_bytes(1, 'big')
-        seq_high = (self._seq >> 8).to_bytes(1, 'big')
+        seq_low = (self._seq & 0x0F).to_bytes(1, 'big')
+        seq_high = ((self._seq >> 8) & 0x0F).to_bytes(1, 'big')
         command = command.to_bytes(1, 'big')
-        checksum = checksum.to_bytes(1, 'big')
-        self._seq += 1
+        payload = seq_high + seq_low + command
+        checksum = (sum(payload)%255).to_bytes(1, 'big')
         self._serial.write(seq_high + seq_low + command + checksum)
-        if command==b'\x00':
-            return self._serial.read(1)
+
+        self._seq = (self._seq + 1)%65535
+        #if command==b'\x00':
+        #    return self._serial.read(1)
 
