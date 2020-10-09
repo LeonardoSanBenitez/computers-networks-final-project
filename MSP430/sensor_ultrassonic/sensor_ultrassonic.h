@@ -8,7 +8,6 @@
 #ifndef SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_
 #define SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_
 
-#define N_MEASURES 8 // if change, must also change in the right shift
 #define COLLISION_THRESHOLD 20000
 /* Conversion to mm
  * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm (without prescaller)

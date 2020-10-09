@@ -14,6 +14,7 @@
  *    P2.4         Trig1
  *  Hardware resources:
  *    TIMER1_B1
+ *    Watchdog
  *    Pins described above
  */
 
@@ -35,6 +36,7 @@ volatile uint8_t CCR2_state = 0;
 volatile uint8_t measure_count = 0;
 volatile uint8_t watchdog_count = 0;
 volatile uint16_t last_value = 0; //for debug
+volatile uint8_t timer_busy = 0;
 
 
 // @Parameter f: global frequency in MHz (not eveything is automatically calculated)
@@ -52,8 +54,6 @@ void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	// Watchdog to start the readings
 	WDTCTL = WDT_MDLY_32;                   // WDT 32ms (default, at F=1MHz) = 1.3ms (at 24MHz), SMCLK, interval timer
 	SFRIE1 |= WDTIE;                        // Enable WDT interrupt
-
-	sensor_ultrassonic_trigger();
 }
 
 
@@ -70,7 +70,7 @@ void sensor_ultrassonic_trigger(){
                                                     // Enable overflow interrupt
 
     TB1CTL |= TBSSEL_2 | MC_2 | TBCLR | TBIE;// | ID__4;      // Use SMCLK as clock source, clear TB1R, prescaller 4x
-
+    timer_busy = 1;
 
     // kept Trigger high for 10us
     int count = 0;
@@ -145,7 +145,7 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
         measure_count++;
 
         measure_count++;
-        if (measure_count>=N_MEASURES){
+        if (measure_count>=8){
             last_value = CCR1_sum>>3; //for debug
 
             //check for collision
@@ -159,8 +159,8 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
             CCR1_sum = 0;
             CCR2_sum = 0;
         }
-
-        sensor_ultrassonic_trigger();
+        timer_busy = 0;
+        //sensor_ultrassonic_trigger();
 
         /*
         CLR_BIT(TB1CCTL1, CCIE);
@@ -212,10 +212,8 @@ void __attribute__((interrupt(WDT_VECTOR))) watchdog_timer(void)
 #endif
 {
 
-    watchdog_count++;
-    if (watchdog_count >= 2){
-        watchdog_count = 0;
-
+    if (!timer_busy){
+        sensor_ultrassonic_trigger();
         //sensor_ultrassonic_trigger();
         /*
         // Echo goes high for a period of time which will be equal to the time taken for the US wave to return back to the sensor

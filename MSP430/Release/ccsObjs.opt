@@ -1,0 +1,1 @@
+"./main.obj" "./battery_monitoring/battery_monitoring.obj" "./lib/uart_fr2355.obj" "./motor_control/motor_control.obj" "./sensor_ultrassonic/sensor_ultrassonic.obj" "../lnk_msp430fr2355.cmd" -lfrwp_init.a -llibc.a 
