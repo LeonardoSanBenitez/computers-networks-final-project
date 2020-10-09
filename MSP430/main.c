@@ -21,7 +21,6 @@
 #include "lib/bits.h"
 #include "lib/gpio.h"
 #include "lib/uart_fr2355.h"
-#include "lib/delay_wdt.h"
 #include "boardDefinitions/MSP430FR2355.h"
 #include "motor_control/motor_control.h"
 #include "sensor_ultrassonic/sensor_ultrassonic.h"
@@ -81,7 +80,6 @@ void collision_callback(){
     //TODO: after stop, start collision avoidance proceadure in raspberry
     motor_state = MOTOR_STATE_STOP;
     motor_control_set_params(1, 0, 1, 0);
-    sensor_ultrassonic_trigger();
 }
 
 void battery_death_callback(){
@@ -99,7 +97,6 @@ int main(){
 
     /* Initializations */
     init_clock_24MHz();
-    delay_ms_init(24);
     sensor_ultrassonic_init(24, &collision_callback);
     motor_control_init(24);
     init_uart();
@@ -144,7 +141,11 @@ int main(){
             else if ((my_data[2]>>4)==0x00){
                 // Received a read request
                 if (my_data[2]==0x00){
-                    uart_send_package((uint8_t *)&motor_state,sizeof(motor_state));
+                    uart_send_package((uint8_t *)&motor_state, sizeof(motor_state));
+                    __bis_SR_register(CPUOFF | GIE);
+                } else if (my_data[2]==0x01){
+                   uint16_t value = sensor_ultrassonic_last_value();
+                    uart_send_package((uint8_t *)&value, sizeof(value));
                     __bis_SR_register(CPUOFF | GIE);
                 }
             }

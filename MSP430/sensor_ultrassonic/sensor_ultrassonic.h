@@ -8,6 +8,13 @@
 #ifndef SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_
 #define SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_
 
+#define N_MEASURES 8 // if change, must also change in the right shift
+#define COLLISION_THRESHOLD 20000
+/* Conversion to mm
+ * (CCRn_countB - CCRn_countA)*1715/(_f*10000) = measure_in_mm (without prescaller)
+ * 20k = 142mm
+ */
+
 #include <msp430.h>
 #include <stdint.h>
 #include <stdint.h>
@@ -16,8 +23,10 @@
 #include "boardDefinitions/MSP430FR2355.h"
 
 void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)());
-void sensor_ultrassonic_trigger();
-uint8_t sensor_ultrassonic_collision_policy();
+uint16_t sensor_ultrassonic_last_value();
 
+
+void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)());
+void sensor_ultrassonic_trigger();
 
 #endif /* SENSOR_ULTRASSONIC_SENSOR_ULTRASSONIC_H_ */
