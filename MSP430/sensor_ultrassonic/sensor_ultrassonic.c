@@ -28,11 +28,6 @@ volatile uint16_t CCR1_countB;
 volatile uint32_t CCR1_sum = 0; //used for averaging
 volatile uint8_t CCR1_state = 0;
 
-volatile uint16_t CCR2_countA;
-volatile uint16_t CCR2_countB;
-volatile uint32_t CCR2_sum = 0; //used for averaging
-volatile uint8_t CCR2_state = 0;
-
 volatile uint8_t measure_count = 0;
 volatile uint8_t watchdog_count = 0;
 volatile uint16_t last_value = 0; //for debug
@@ -45,11 +40,11 @@ void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	_f = f;
 	_collision_callback = collision_callback;
 
-	CLR_BIT(P2DIR, BIT0 | BIT1); // input
-	SET_BIT(P2REN, BIT0 | BIT1); // pull enable
-	CLR_BIT(P2OUT, BIT0 | BIT1); // pull down
-    P2SEL0 = BIT0 | BIT1; //Input capture for P2.0
-	SET_BIT(P2DIR, BIT2 | BIT4); //output 
+	CLR_BIT(P2DIR, BIT0); // input
+	SET_BIT(P2REN, BIT0); // pull enable
+	CLR_BIT(P2OUT, BIT0); // pull down
+    P2SEL0 = BIT0; //Input capture
+	SET_BIT(P2DIR, BIT2); //output
 
 	// Watchdog to start the readings
 	WDTCTL = WDT_MDLY_32;                   // WDT 32ms (default, at F=1MHz) = 1.3ms (at 24MHz), SMCLK, interval timer
@@ -85,46 +80,31 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
             break;
         /* Vector  4:  TBCCR2 CCIFG -> Comparator 2*/
         case TB1IV_TBCCR2:
-            TB1CCTL2 &= ~CCIFG;
-            if (CCR2_state==0){ //Rising edge,begin of the read
-                CCR2_countA = TB1CCR2;
-                CCR2_state=1;
-            } else if (CCR2_state==1){ //falling edge, end of the read
-                CCR2_countB = TB1CCR2;
-                CCR2_state=2;
-            }
             break;
 
         /* Vector 10:  TBIFG -> Overflow do timer 0*/
         case TB1IV_TBIFG:
             CCR1_state = 2;
-            CCR2_state = 2;
             CCR1_countB = 65535;
             CCR1_countA = 0;
-            CCR2_countB = 65535;
-            CCR2_countA = 0;
             break;
         default:
             break;
     }
-    if (CCR1_state==2 && CCR2_state==2){ //one measure concluded
+    if (CCR1_state==2){ //one measure concluded
         CCR1_state = 0;
-        CCR2_state = 0;
 
         CLR_BIT(TB1CCTL1, CCIE);
         CLR_BIT(TB1CCTL2, CCIE);
         CLR_BIT(TB1CTL, TBIE | CCIE);
 
         CCR1_sum += CCR1_countB - CCR1_countA;
-        CCR2_sum += CCR2_countB - CCR2_countA;
         measure_count++;
 
-        measure_count++;
         if (measure_count>=16){
             last_value = CCR1_sum>>4; //for debug
-
             //check for collision
-            if (((CCR1_sum>>3) < COLLISION_THRESHOLD ) || ((CCR2_sum>>3) < COLLISION_THRESHOLD)){
+            if ((CCR1_sum>>4) < COLLISION_THRESHOLD){
                 SET_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
                 (*_collision_callback)();
             } else{
@@ -132,37 +112,8 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
             }
             measure_count = 0;
             CCR1_sum = 0;
-            CCR2_sum = 0;
         }
         timer_busy = 0;
-
-        /*
-        CLR_BIT(TB1CCTL1, CCIE);
-        CLR_BIT(TB1CCTL2, CCIE);
-        CLR_BIT(TB1CTL, TBIE);
-
-        CCR1_sum += CCR1_countB - CCR1_countA;
-        CCR2_sum += CCR2_countB - CCR2_countA;
-
-        CPL_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
-
-        measure_count++;
-        if (measure_count>=N_MEASURES){
-            measure_count = 0;
-            last_value = CCR1_sum>>3; //for debug
-            //check for collision
-            if (((CCR1_sum>>3) < COLLISION_THRESHOLD ) || ((CCR2_sum>>3) < COLLISION_THRESHOLD)){
-                //call callback
-                //SET_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
-                (*_collision_callback)();
-            } else{
-                //normal operation
-                //CLR_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
-            }
-            CCR1_sum = 0;
-            CCR2_sum = 0;
-        }*/
-
     }
 
 }
@@ -185,16 +136,13 @@ void __attribute__((interrupt(WDT_VECTOR))) watchdog_timer(void)
 #error Compiler not supported!
 #endif
 {
-
     if (!timer_busy){
-
-
         // Echo goes high for a period of time which will be equal to the time taken for the US wave to return back to the sensor
         // Enable Timer
         TB1CCR0 = _f*10;
         TB1CCTL0 |= CCIE;
         TB1CCTL1 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
-        TB1CCTL2 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
+        //TB1CCTL2 |= CM_3 | CCIS_0 | CCIE | CAP | SCS;
                                                         // Capture in both rising and falling edge,
                                                         // Use CCI0A,
                                                         // Synchronous capture,
@@ -207,7 +155,7 @@ void __attribute__((interrupt(WDT_VECTOR))) watchdog_timer(void)
                                                         // clear TB1R
                                                         // TBCCR0 interrupt enabled
                                                         // prescaller 4x
-        SET_BIT(P2OUT, BIT2 | BIT4);
+        SET_BIT(P2OUT, BIT2);
         timer_busy = 1;
     }
 }
@@ -222,7 +170,7 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) Timer1_B0_ISR (void)
 #error Compiler not supported!
 #endif
 {
-    CLR_BIT(P2OUT, BIT2 | BIT4);
+    CLR_BIT(P2OUT, BIT2);
 }
 
 
