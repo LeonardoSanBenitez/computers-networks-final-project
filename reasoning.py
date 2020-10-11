@@ -146,6 +146,7 @@ class SelectionPolicyByObject (SelectionPolicy):
         cascade_model = cv2.CascadeClassifier(self.path_model)
 
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        print(gray.shape, gray.mean())
         self._detections = cascade_model.detectMultiScale(gray, 1.3, 5)
         if verbose:
             print(self._detections)
