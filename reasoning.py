@@ -131,7 +131,6 @@ class SelectionPolicyByObject (SelectionPolicy):
     '''
     imgWidth = None
     imgHeight = None
-    path_model = None
 
     def __init__(self, imgWidth=320, imgHeight=240, path_model='assets/models/haarcascade_frontalface_default.xml'):
         '''
@@ -139,17 +138,14 @@ class SelectionPolicyByObject (SelectionPolicy):
         '''
         self.imgHeight = imgHeight
         self.imgWidth = imgWidth
-        self.path_model = path_model
+        self.cascade_model = cv2.CascadeClassifier(path_model)
 
     def validate(self, img, verbose=0):
         assert type(img) != type(None), ('invalid image')
-        cascade_model = cv2.CascadeClassifier(self.path_model)
 
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        print(gray.shape, gray.mean())
-        self._detections = cascade_model.detectMultiScale(gray, 1.3, 5)
-        if verbose:
-            print(self._detections)
+        self._detections = self.cascade_model.detectMultiScale(gray, 1.3, 5)
+        if verbose: print(self._detections)
         if len(self._detections) > 0:
             return True
         else:
@@ -162,7 +158,9 @@ class SelectionPolicyByObject (SelectionPolicy):
 
 class SelectionPolicyByMovement(SelectionPolicy):
     def __init__(self):
-        pass
+        raise Exception('not implemented')
 
-    def validate(self, frame1, frame2):
+    def validate(self, img):
+        #if |last_img - img| > threshold then policy = true
+        #self.last_img=img
         pass

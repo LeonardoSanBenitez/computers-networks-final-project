@@ -51,10 +51,9 @@ if __name__ == "__main__":
         
         payload_bme = future_bme.result()
         payload_camera = future_camera.result()
-        print(payload_camera.shape)
         memorable_object = policy.validate(payload_camera)
         memorable = memorable_object or FLAGS['alwaysMemorable']
-        if FLAGS['verbose'] and memorable: print('MEMORABLE SCENE')
+        if FLAGS['verbose'] and memorable: print('>>> Memorable obtect detected')
         if memorable:
             # TODO
             # policy.getDetections()
