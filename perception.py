@@ -247,11 +247,11 @@ class Sensor_Bme280 (Sensor):
 
 
 class Camera ():
-    def __init__(self, imgWidht=320, imgHeight=320):
-        self.imgWidht = imgWidht
+    def __init__(self, imgWidth=320, imgHeight=320):
+        self.imgWidth = imgWidth
         self.imgHeight = imgHeight
         self.camera = PiCamera()
-        self.camera.resolution = (imgWidht, imgHeight)
+        self.camera.resolution = (imgWidth, imgHeight)
         self.camera.framerate = 15
         self.camera.rotation = 90
         time.sleep(5)
@@ -260,9 +260,9 @@ class Camera ():
     def captureFrame(self, verbose=False):
         if verbose:
             print("begin readCamera...", end='')
-        image = np.empty((self.imgHeight * self.imgWidht * 3,), dtype=np.uint8)
+        image = np.empty((self.imgHeight * self.imgWidth * 3,), dtype=np.uint8)
         self.camera.capture(image, 'bgr')
-        image = image.reshape((self.imgHeight, self.imgWidht, 3))
+        image = image.reshape((self.imgHeight, self.imgWidth, 3))
         if verbose:
             print("...Finishing readCamera")
         return image

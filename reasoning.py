@@ -129,7 +129,7 @@ class SelectionPolicyByObject (SelectionPolicy):
     Based on: https://towardsdatascience.com/face-detection-in-2-minutes-using-opencv-python-90f89d7c0f81
     Return: bool
     '''
-    imgWidht = None
+    imgWidth = None
     imgHeight = None
     path_model = None
 
@@ -138,7 +138,7 @@ class SelectionPolicyByObject (SelectionPolicy):
         @Brief: the object to be detected is defined by the cascade model passed
         '''
         self.imgHeight = imgHeight
-        self.imgWidht = imgWidth
+        self.imgWidth = imgWidth
         self.path_model = path_model
 
     def validate(self, img, verbose=0):

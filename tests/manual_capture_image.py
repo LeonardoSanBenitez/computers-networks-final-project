@@ -10,7 +10,7 @@
 path_out = 'assets/'
 path_in = 'assets/image2.jpg' # in case we are reading from disk, not from camera
 
-imgWidht = 800
+imgWidth = 800
 imgHeight = 800
 
 class Flags:
@@ -121,20 +121,20 @@ while (1):
     # Read Image
     if flags.onRaspberry:
         camera = PiCamera()
-        camera.resolution = (imgWidht, imgHeight)
+        camera.resolution = (imgWidth, imgHeight)
         camera.framerate = 15
         camera.rotation = 90
         time.sleep(5)
-        image = np.empty((imgHeight * imgWidht * 3,), dtype=np.uint8)
+        image = np.empty((imgHeight * imgWidth * 3,), dtype=np.uint8)
         camera.capture(image, 'bgr')
-        image = image.reshape((imgHeight, imgWidht, 3))
+        image = image.reshape((imgHeight, imgWidth, 3))
     else:
         image = cv2.imread(path_in)
-        image = cv2.resize(image, (imgWidht, imgHeight), interpolation = cv2.INTER_LINEAR)
+        image = cv2.resize(image, (imgWidth, imgHeight), interpolation = cv2.INTER_LINEAR)
         plt.imshow(image)
 
     # Process image
-    thresh = sd.processImg(image, thresh_value=110)#np.zeros((imgWidht, imgHeight, 3), dtype=np.uint8))#test 
+    thresh = sd.processImg(image, thresh_value=110)#np.zeros((imgWidth, imgHeight, 3), dtype=np.uint8))#test 
     #print ('Image thresholded, pixel\'s mean: ' + str(thresh.mean()))
     if not flags.onRaspberry: plt.imshow(thresh)
     

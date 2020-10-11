@@ -34,7 +34,7 @@ volatile uint16_t last_value = 0; //for debug
 volatile uint8_t timer_busy = 0;
 
 
-// @Parameter f: global frequency in MHz (not eveything is automatically calculated)
+// @Parameter f: global frequency in MHz (not everything is automatically calculated)
 // @Parameter *collision_callback: will be called when an object is too close
 void sensor_ultrassonic_init(uint8_t f, void (*collision_callback)()){
 	_f = f;
