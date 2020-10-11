@@ -17,30 +17,29 @@ import communication
 
 FLAGS = {
     'exportLog': False,
-    'alwaysMemorable': True,
-    'sendMqtt': True,
+    'alwaysMemorable': False,
+    'sendMqtt': False,
     'sendHttp': False,
     'path_out': 'assets/',
-    'verbose': 0
+    'verbose': 1
 }
 
 if __name__ == "__main__":
     bme280 = perception.Sensor_Bme280()
     motor = interaction.MotorUART()
-    camera = perception.Camera()
-    policy = reasoning.SelectionPolicyByShape()
+    camera = perception.Camera(imgWidht=800, imgHeight=800)
+    policy = reasoning.SelectionPolicyByObject(imgWidth=800, imgHeight=800)
     led = communication.LED()
-    
-    mqtt = communication.MQTT(team='benitez_nagel', 
+    if FLAGS['sendMqtt']: mqtt = communication.MQTT(team='benitez_nagel', 
                               device='device_0', 
-                              #auth_user='crojvinz',
-                              #auth_pass='HKGvGSRSjC9B',
-                              #auth_cert='comodorsacertificationauthority.crt',
-                              auth_token='sQga6SL8ESsFvrbKbBkeLngDyflFHveXckV81w6vepYzE07FphKYvQrTUCnpYrd0',
-                              broker_domain="mqtt.flespi.io",#'mqtt.flespi.io',#"tailor.cloudmqtt.com",
-                              broker_port=1883,#1883,#20641,
+                              auth_user='crojvinz',
+                              auth_pass='HKGvGSRSjC9B',
+                              auth_cert='comodorsacertificationauthority.crt',
+                              #auth_token='sQga6SL8ESsFvrbKbBkeLngDyflFHveXckV81w6vepYzE07FphKYvQrTUCnpYrd0',
+                              broker_domain="tailor.cloudmqtt.com",#'mqtt.flespi.io',#"tailor.cloudmqtt.com",
+                              broker_port=20641,#1883,#20641,
                               verbose=FLAGS['verbose'])
-    #http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
+    if FLAGS['sendHttp']: http = HTTP(serverURL = 'http://192.168.0.51:5000/receive/')
     executor = concurrent.futures.ThreadPoolExecutor()
     if FLAGS['verbose']: print('Init done')
     
@@ -52,8 +51,10 @@ if __name__ == "__main__":
         
         payload_bme = future_bme.result()
         payload_camera = future_camera.result()
+        print(payload_camera.shape)
         memorable_object = policy.validate(payload_camera)
         memorable = memorable_object or FLAGS['alwaysMemorable']
+        if FLAGS['verbose'] and memorable: print('MEMORABLE SCENE')
         if memorable:
             # TODO
             # policy.getDetections()
@@ -62,16 +63,16 @@ if __name__ == "__main__":
             #   control_sinal = error*C
             # variável de controle é o tempo (poderia ser a velocidade, mas eu resolvi simplificar)
             # send UART
-            motor.send(motor.test_command())
+            motor.send(motor.test_command(verbose=1))
 
         # Send to server
         data = {'temperature': payload_bme['temperature'],
                 'pressure': payload_bme['pressure'],
                 'humidity': payload_bme['humidity'],
                 'haveImage': memorable}
-        if FLAGS['verbose']: print('Sending... ' + json.dumps(data))
         data = json.dumps(data)
-        mqtt.send_json(data)
+        if FLAGS['verbose']: print('Sending... ' + data)
+        if FLAGS['sendMqtt']: mqtt.send_json(data)
 
         file = TemporaryFile()
         np.save(file, payload_camera)
