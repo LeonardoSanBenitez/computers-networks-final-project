@@ -8,6 +8,7 @@ import json
 from tempfile import TemporaryFile
 import base64
 import io
+import time
 
 # AI modules
 import perception
@@ -55,14 +56,20 @@ if __name__ == "__main__":
         memorable = memorable_object or FLAGS['alwaysMemorable']
         if FLAGS['verbose'] and memorable: print('>>> Memorable obtect detected')
         if memorable:
-            # TODO
+            #motor.send(motor.test_command(verbose=1))
+            
+            ## To seek a target:
             # policy.getDetections()
-            # compare with image center: 
-            #   error = (x_center - x_dog)
-            #   control_sinal = error*C
-            # variável de controle é o tempo (poderia ser a velocidade, mas eu resolvi simplificar)
-            # send UART
-            motor.send(motor.test_command(verbose=1))
+            # error = (x_center - x_dog)
+            # control_sinal = error*C
+            # variável de controle pode ser o tempo ou a velocidade
+
+            motor.send(motor.commands['stop'])
+            #TODO: colision avoidance proceadure
+            # motor.send(motor.commands['left'])
+            # time.sleep(0.5)
+            # motor.send(motor.commands['forth'])
+            
 
         # Send to server
         data = {'temperature': payload_bme['temperature'],

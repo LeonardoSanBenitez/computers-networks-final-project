@@ -18,7 +18,8 @@ Frame:
 
 List of commands:
 
-* `0x00`: read motor state; Expects 1 byte as answer
+* `0x00`: read motor state; Expects 2 bytes as answer
+* `0x01`: read ultrassonic; Expects 2 bytes as answer
 * `0x80`: go forth; expects ACK/NACK as answer
 * `0x81`: turn left; expects ACK/NACK as answer
 * `0x82`: turn right; expects ACK/NACK as answer

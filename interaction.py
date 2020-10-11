@@ -22,6 +22,13 @@ class MotorUART(Motor):
     '''
     @Brief: send to MSP430 via UART
     '''
+    commands = {
+        'forth': 0x80,
+        'left': 0x81,
+        'right': 0x82,
+        'stop': 0x83,
+        'back': 0x84
+    }
 
     def __init__(self, debug=True):
         self._seq=0
