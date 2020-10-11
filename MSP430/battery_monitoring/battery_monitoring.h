@@ -17,10 +17,5 @@
 //@Parameter death_callback: will be called if the battery is critically low
 void battery_monitoring_init(uint8_t f, void (*death_callback)());
 
-//@Brief: check if the values read are normal
-//@Return: 1 (normal) or 0 (not normal)
-//TODO: receive a callback function as parameter
-uint8_t battery_monitoring_death_policy ();
-
 
 #endif /* BATTERY_MONITORING_BATTERY_MONITORING_H_ */

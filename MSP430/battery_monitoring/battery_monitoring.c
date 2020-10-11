@@ -7,8 +7,9 @@
 
 #include "battery_monitoring.h"
 
-volatile unsigned int ADC_Result[3];             // 12-bit ADC conversion result array
-volatile unsigned char i;
+volatile uint16_t ADC_Result[3];             // 12-bit ADC conversion result array
+volatile uint8_t i;
+volatile uint8_t battery_debounce = 0;
 void (*_death_callback)() = 0;
 
 void battery_monitoring_init(uint8_t f, void (*death_callback)()){
@@ -36,23 +37,6 @@ void battery_monitoring_init(uint8_t f, void (*death_callback)()){
     TB0CCTL0 |= CCIE;                             // TBCCR0 interrupt enabled
     TB0CCR0 = (uint16_t)f*2000;                  // CCR on that value. T=2ms
     TB0CTL = TBSSEL__SMCLK | MC__UP;              // SMCLK, UP mode
-}
-
-
-uint8_t battery_monitoring_death_policy (){
-    /* Calculo completo:
-    float v_total = ADC_Result[1] * (3.3/4095) * (30/40) * (40/10); // batery 0 + batery 1, about 7V (before opamp)
-    float v_bat0  = ADC_Result[2] * (3.3/4095) * (15/25) * (25/10); //tensão no ponto intermeriário, v_med
-    float v_bat1 = v_total - v_bat0;
-    if (v_bat0<3.1 || v_bat1<3.1){}
-    */
-    //TODO: debouncer
-
-    if ((ADC_Result[2]<2564) || (ADC_Result[1]<2564)){
-        return 1;
-    } else {
-        return 0;
-    }
 }
 
 
@@ -84,8 +68,21 @@ void __attribute__ ((interrupt(ADC_VECTOR))) ADC_ISR (void)
             ADC_Result[i] = ADCMEM0;
             if(i == 0){
                 i = 2;
-                if (battery_monitoring_death_policy()){
-                    (*_death_callback)();
+                /* Calculo completo:
+                float v_total = ADC_Result[1] * (3.3/4095) * (30/40) * (40/10); // batery 0 + batery 1, about 7V (before opamp)
+                float v_bat0  = ADC_Result[2] * (3.3/4095) * (15/25) * (25/10); //tensão no ponto intermeriário, v_med
+                float v_bat1 = v_total - v_bat0;
+                if (v_bat0<3.1 || v_bat1<3.1){}
+                */
+
+                if ((ADC_Result[2]<2564) || (ADC_Result[1]<2564)){
+                    battery_debounce++;
+                    if (battery_debounce>250){ //~0.5s com a bateria baixa
+                        (*_death_callback)();
+                        battery_debounce=0;
+                    }
+                } else {
+                    battery_debounce=0;
                 }
             } else{
                 i--;

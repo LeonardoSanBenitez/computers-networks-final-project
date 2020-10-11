@@ -77,7 +77,7 @@ void init_clock_24MHz(void) {
 }
 
 void collision_callback(){
-    //TODO: after stop, start collision avoidance proceadure in raspberry
+    //TODO: collision avoidance proceadure will be done in raspberry
     motor_state = MOTOR_STATE_STOP;
     motor_control_set_params(1, 0, 1, 0);
 }
@@ -87,6 +87,8 @@ void battery_death_callback(){
     // desligar motor
     // desligar o resto
     // preferencialmente, desligar o raspberry
+    motor_state = MOTOR_STATE_STOP;
+    motor_control_set_params(1, 0, 1, 0);
 }
 
 int main(){
