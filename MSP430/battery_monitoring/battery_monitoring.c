@@ -40,18 +40,15 @@ void battery_monitoring_init(uint8_t f, void (*death_callback)()){
 
 
 uint8_t battery_monitoring_death_policy (){
-    // Referência de 3.3V
-    // V = 3.3*adc[n]/4095
+    /* Calculo completo:
+    float v_total = ADC_Result[1] * (3.3/4095) * (30/40) * (40/10); // batery 0 + batery 1, about 7V (before opamp)
+    float v_bat0  = ADC_Result[2] * (3.3/4095) * (15/25) * (25/10); //tensão no ponto intermeriário, v_med
+    float v_bat1 = v_total - v_bat0;
+    if (v_bat0<3.1 || v_bat1<3.1){}
+    */
+    //TODO: debouncer
 
-    // v_total = ADC_Result[1]*10/30 // batery 0 + batery 1, about 7V (before opamp)
-    // v_bat0 = 10/15*ADC_Result[2] //tensão no ponto intermeriário, v_med
-    // v_bat1 = v_total - v_bat0
-    //TODO: esses calculos acima estão certos?
-    //TODO: considerar algum tipo de "debouncer"
-    //TODO: o que diabos está acontecendo nessa comparação
-
-
-    if (ADC_Result[1]<3846 || ADC_Result[2]<3846){
+    if ((ADC_Result[2]<2564) || (ADC_Result[1]<2564)){
         return 1;
     } else {
         return 0;

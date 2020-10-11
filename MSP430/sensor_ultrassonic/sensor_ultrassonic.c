@@ -101,10 +101,10 @@ void __attribute__ ((interrupt(TIMER1_B0_VECTOR))) TIMER1_B0_ISR (void)
         CCR1_sum += CCR1_countB - CCR1_countA;
         measure_count++;
 
-        if (measure_count>=16){
-            last_value = CCR1_sum>>4; //for debug
+        if (measure_count>=32){
+            last_value = CCR1_sum>>5;
             //check for collision
-            if ((CCR1_sum>>4) < COLLISION_THRESHOLD){
+            if ((last_value) < COLLISION_THRESHOLD){
                 SET_BIT(PORT_OUT(LED1_PORT), LED1_BIT); // LED
                 (*_collision_callback)();
             } else{
