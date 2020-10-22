@@ -123,7 +123,7 @@ int main(){
                 // Received a command
                 if (my_data[2]==0x80){
                     motor_state = MOTOR_STATE_FORTH;
-                    motor_control_set_params(2, 100, 2, 100);
+                    motor_control_set_params(2, 90, 2, 90);
                 } else if (my_data[2]==0x81){
                     motor_state = MOTOR_STATE_LEFT;
                     motor_control_set_params(2, 100, 0, 100);
