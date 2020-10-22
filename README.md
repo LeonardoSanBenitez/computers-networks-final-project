@@ -1,8 +1,6 @@
-# RemoteEXP
+# Covido - The unsocial robot
 
-Complete docs on: https://docs.google.com/document/d/16KV8YbAj3a8sfPOGyVjEKWebncUCCB7gR_Yp_kgiS2w/edit?usp=sharing
-
-
+Video presentation (in portuguese): https://youtu.be/6Qztn1Jd9UQ
 
 ## Communication MSP with raspberry
 
